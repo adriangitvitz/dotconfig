@@ -2,6 +2,59 @@ return {
     "nvim-lualine/lualine.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
+        local colors = {
+            bg = '#202328',
+            fg = '#bbc2cf',
+            yellow = '#ECBE7B',
+            cyan = '#008080',
+            darkblue = '#081633',
+            green = '#98be65',
+            orange = '#FF8800',
+            violet = '#a9a1e1',
+            magenta = '#c678dd',
+            blue = '#51afef',
+            red = '#ec5f67'
+        }
+
+        local mode_color = {
+            n = colors.blue,
+            i = colors.green,
+            v = colors.yellow,
+            [''] = colors.yellow,
+            V = colors.yellow,
+            c = colors.magenta,
+            no = colors.red,
+            s = colors.orange,
+            S = colors.orange,
+            [''] = colors.orange,
+            ic = colors.yellow,
+            R = colors.violet,
+            Rv = colors.violet,
+            cv = colors.red,
+            ce = colors.red,
+            r = colors.cyan,
+            rm = colors.cyan,
+            ['r?'] = colors.cyan,
+            ['!'] = colors.red,
+            t = colors.red
+        }
+
+        local custom_theme = {
+            normal = {
+                a = { fg = colors.bg, bg = colors.green, gui = 'bold' },
+                b = { fg = colors.fg, bg = colors.darkblue },
+                c = { fg = colors.fg, bg = colors.bg }
+            },
+            insert = { a = { fg = colors.bg, bg = colors.blue, gui = 'bold' } },
+            visual = { a = { fg = colors.bg, bg = colors.violet, gui = 'bold' } },
+            replace = { a = { fg = colors.bg, bg = colors.red, gui = 'bold' } },
+            inactive = {
+                a = { fg = colors.fg, bg = colors.bg, gui = 'bold' },
+                b = { fg = colors.fg, bg = colors.bg },
+                c = { fg = colors.fg, bg = colors.bg }
+            }
+        }
+
         local lualine = require("lualine")
         local lazy_status = require("lazy.status") -- to configure lazy pending updates count
 
@@ -120,7 +173,7 @@ return {
                         end
 
                         if self.clients[client_name].attach_timer then
-                            vim.loop.timer_stop(self.clients[client_name].attach_timer)
+                            vim.uv.timer_stop(self.clients[client_name].attach_timer)
                         end
 
                         local progress = self.clients[client_name].progress
@@ -239,7 +292,7 @@ return {
 
             local attached = vim.tbl_map(function(c)
                 return c.name
-            end, vim.lsp.get_active_clients({ bufnr = vim.api.nvim_get_current_buf() }))
+            end, vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() }))
             for _, client in pairs(self.clients) do
                 for _, display_component in pairs(self.options.display_components) do
                     local display_client = true
@@ -334,7 +387,7 @@ return {
             self.spinner.index = 0
             self.spinner.symbol_mod = #self.options.spinner_symbols
             self.spinner.symbol = self.options.spinner_symbols[1]
-            self.timer = vim.loop.new_timer()
+            self.timer = vim.uv.new_timer()
             self.timer:start(
                 0,
                 self.options.timer.spinner,
@@ -392,7 +445,7 @@ return {
             -- Try to get root from LSP
             local function from_lsp()
                 local buf = vim.api.nvim_get_current_buf()
-                local clients = vim.lsp.get_active_clients({ bufnr = buf })
+                local clients = vim.lsp.get_clients({ bufnr = buf })
                 if #clients > 0 then
                     return clients[1].config.root_dir
                 end
@@ -470,11 +523,21 @@ return {
             options = {
                 section_separators = { left = "", right = "" },
                 component_separators = { left = "", right = "" },
-                theme = "zenburn",
+                theme = custom_theme,
             },
             sections = {
+                lualine_a = {
+                    {
+                        "mode"
+                    },
+                    {
+                        color = function()
+                            return { fg = mode_color[vim.fn.mode()], bg = colors.bg }
+                        end,
+                    }
+                },
                 lualine_c = {
-                    pretty_path()
+                    pretty_path(),
                 },
                 lualine_y = {
                     LspProgress,

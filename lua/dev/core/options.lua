@@ -29,15 +29,17 @@ opt.updatetime = 50
 opt.undodir = os.getenv("HOME") .. "/.config/undodir"
 opt.laststatus = 3
 opt.fillchars = { eob = " " }
-opt.guicursor = 'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20'
+-- opt.guicursor = 'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20'
+opt.guicursor = 'n-v-c:block'
 opt.fileencoding = "utf-8"
 opt.laststatus = 2
 opt.cmdheight = 2
 opt.showmode = true
 
-vim.keymap.set('i', '<C-q>', '<Esc>', { noremap = true, silent = true })
+vim.keymap.set('i', '<C-s>', '<Esc>', { noremap = true, silent = true })
 vim.o.ignorecase = true
 vim.o.smartcase = true
+vim.o.shell = "/bin/zsh"
 
 local sign = vim.fn.sign_define
 vim.api.nvim_set_hl(0, 'DapBreakpoint', { ctermbg = 0, fg = '#993939' })

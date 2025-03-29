@@ -1,4 +1,4 @@
-vim.opt.makeprg = "python3 %"
+-- vim.opt.makeprg = "python3 %"
 
 -- vim.opt.errorformat = [[
 --   \%*\\sFile\ "%f"\\,\ line\ %l\\,\ %m,

@@ -2,7 +2,6 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-        "nvimdev/lspsaga.nvim", -- Enhanced UI features
         "hrsh7th/cmp-nvim-lsp",
         "mfussenegger/nvim-jdtls"
     },
@@ -27,6 +26,11 @@ return {
                         vim.lsp.codelens.refresh()
                     end,
                 })
+            end
+
+            if client.name == 'ruff' then
+                -- Disable hover in favor of Pyright
+                client.server_capabilities.hoverProvider = false
             end
 
             -- require("navigator").setup({ client = client })
@@ -133,6 +137,10 @@ return {
         })
 
         lspconfig["ruff"].setup({
+            capabilities = (function()
+                capabilities.completionProvider = false
+                return capabilities
+            end)(),
             init_options = {
                 settings = {
                     configurationPreference = "filesystemFirst",
@@ -187,41 +195,71 @@ return {
             },
         })
 
-        lspconfig["pylsp"].setup({
+        -- configure python server
+        local function organize_imports()
+            local params = {
+                command = "pyright.organizeimports",
+                arguments = { vim.uri_from_bufnr(0) },
+            }
+            vim.lsp.buf.execute_command(params)
+        end
+
+        local function set_python_path(path)
+            local clients = vim.lsp.get_clients({
+                bufnr = vim.api.nvim_get_current_buf(),
+                name = "pyright",
+            })
+            for _, client in ipairs(clients) do
+                client.config.settings =
+                    vim.tbl_deep_extend("force", client.config.settings, { python = { pythonPath = path } })
+                client.notify("workspace/didChangeConfiguration", { settings = nil })
+            end
+        end
+
+        lspconfig["pyright"].setup({
             on_attach = on_attach,
             capabilities = capabilities,
+            cmd = { "pyright-langserver", "--stdio" },
+            filetypes = { "python" },
+            root_dir = function(fname)
+                return util.root_pattern(unpack({
+                    "pyproject.toml",
+                    "setup.py",
+                    "setup.cfg",
+                    "requirements.txt",
+                    "Pipfile",
+                    "pyrightconfig.json",
+                    ".git",
+                }))(fname)
+            end,
             settings = {
-                pylsp = {
-                    plugins = {
-                        jedi_hover = { enabled = true }, -- Must be enabled[10]
-                        jedi_signature_help = { enabled = true },
-                        jedi_completion = {
-                            fuzzy = true,
-                            eager = true,
-                            cache_for = { "numpy", "pandas", "torch" }
-                        },
-                        preload = {
-                            enabled = true,
-                            modules = { "numpy", "pandas" }
-                        },
-                        -- Disable competing functionality
-                        pycodestyle = { enabled = false },
-                        pyflakes = { enabled = false },
-                        mccabe = { enabled = false },
-                        autopep8 = { enabled = false },
-                        yapf = { enabled = false },
-                        -- Configure Ruff integration
-                        ruff = {
-                            hover = { enabled = false }, -- Delegate to jedi[1]
-                            enabled = true,
-                            formatEnabled = true,
-                            extendSelect = { "I" },
-                            lineLength = 120,
-                            targetVersion = "py311"
-                        }
-                    }
-                }
+                pyright = {
+                    disableOrganizeImports = true,
+                },
+                python = {
+                    analysis = {
+                        ignore = { "*" },
+                        -- Enable autocompletion
+                        autoImportCompletions = true,
+                        -- Improve completion quality
+                        typeCheckingMode = "off",
+                        useLibraryCodeForTypes = true
+                    },
+                },
             },
+            commands = {
+                -- PyrightOrganizeImports = {
+                --     organize_imports,
+                --     description = "Organize Imports",
+                -- },
+                PyrightSetPythonPath = {
+                    set_python_path,
+                    description = "Reconfigure pyright with the provided python path",
+                    nargs = 1,
+                    complete = "file",
+                },
+            },
+            single_file_support = true,
         })
 
         lspconfig["lua_ls"].setup({
@@ -293,7 +331,7 @@ return {
             filetypes = { "terraform", "tf" },
             cmd = { "terraform-ls", "serve" },
             root_dir = function(fname)
-                return util.root_pattern(unpack({ "*.tf", "*.tfvars" }))(fname)
+                return util.root_pattern(table.unpack({ "*.tf", "*.tfvars" }))(fname)
             end,
         })
 
@@ -326,20 +364,5 @@ return {
         --     on_attach = on_attach,
         --     filetypes = { "elixir" },
         -- })
-
-        vim.api.nvim_create_autocmd("LspAttach", {
-            callback = function(args)
-                local client = vim.lsp.get_client_by_id(args.data.client_id)
-                if client ~= nil and client.name == "ruff" then
-                    -- Delegate to PyLSP
-                    client.server_capabilities.hoverProvider = false
-                    client.server_capabilities.renameProvider = false
-                elseif client ~= nil and client.name == "pylsp" then
-                    -- Delegate to Ruff
-                    client.server_capabilities.documentFormattingProvider = false
-                    client.server_capabilities.codeActionProvider = false
-                end
-            end
-        })
     end
 }

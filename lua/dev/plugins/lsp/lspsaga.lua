@@ -1,6 +1,7 @@
 return {
-    'nvimdev/lspsaga.nvim',
-    event = "LspAttach",
+    'adriangitvitz/lspsaga.nvim',
+    branch = "dev",
+    -- event = "LspAttach",
     config = function()
         require('lspsaga').setup({
             hover = {

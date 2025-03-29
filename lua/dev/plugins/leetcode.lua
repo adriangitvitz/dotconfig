@@ -9,6 +9,11 @@ return {
     opts = {
         -- configuration goes here
         lang = "python3",
-        vim.api.nvim_set_hl(0, "leetcode_dyn_p", { fg = "#787878" })
+        theme = {
+            ["normal"] = {
+                fg = "#F0F0F0",
+            }
+        }
+        -- vim.api.nvim_set_hl(0, "leetcode_dyn_p", { fg = "#F0F0F0" })
     },
 }

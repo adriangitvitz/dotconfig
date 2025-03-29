@@ -1,5 +1,6 @@
 return {
-    "folke/snacks.nvim",
+    "adriangitvitz/snacks.nvim",
+    branch = "dev",
     priority = 1000,
     lazy = false,
     ---@type snacks.Config
