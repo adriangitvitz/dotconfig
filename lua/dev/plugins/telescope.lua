@@ -26,8 +26,10 @@ return {
                     "--line-number",
                     "--column",
                     "--smart-case",
+                    "--no-ignore-vcs"
                 },
-                file_ignore_patterns = { "venv", "%.venv" },
+                -- file_ignore_patterns = { "venv", "%.venv" },
+                file_ignore_patterns = { "node_modules", "%.pyc" },
                 layout_strategy = "vertical",
                 layout_config = {
                     vertical = {

@@ -41,6 +41,9 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.shell = "/bin/zsh"
 
+vim.api.nvim_set_keymap('n', 'Q', '<Nop>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'q', '<Nop>', { noremap = true, silent = true })
+
 local sign = vim.fn.sign_define
 vim.api.nvim_set_hl(0, 'DapBreakpoint', { ctermbg = 0, fg = '#993939' })
 sign("DapBreakpoint", { text = "●", texthl = "DapBreakpoint", linehl = "", numhl = "" })
