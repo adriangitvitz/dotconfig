@@ -1,6 +1,8 @@
 local keymap = vim.keymap
 
-keymap.set("n", "<leader>s", ":w<CR>", { desc = "Save" })
+keymap.set("n", "<leader>s", function()
+    vim.cmd("silent! write")
+end, { desc = "Save" })
 keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move lines down" })
 keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move lines up" })
 
