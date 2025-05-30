@@ -31,11 +31,18 @@ return {
                 -- file_ignore_patterns = { "venv", "%.venv" },
                 file_ignore_patterns = { "node_modules", "%.pyc" },
                 layout_strategy = "vertical",
+                sorting_strategy = "ascending",
                 layout_config = {
-                    vertical = {
-                        prompt_position = "bottom",
-                        preview_width = 0.5,
+                    horizontal = {
+                        prompt_position = "top",
+                        preview_width = 0.50,
                     },
+                    vertical = {
+                        mirror = false,
+                    },
+                    width = 0.87,
+                    height = 0.80,
+                    preview_cutoff = 120,
                 },
                 path_display = { "truncate " },
                 mappings = {

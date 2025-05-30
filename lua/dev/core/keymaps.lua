@@ -11,6 +11,8 @@ vim.api.nvim_set_keymap("n", "<leader>dio", ":diffoff<CR>", { noremap = true, de
 
 vim.keymap.set('n', '<leader>R', ':make<CR>:copen<CR>', { silent = true })
 
+vim.keymap.set('n', '<leader>Y', '<cmd>Yazi<CR>', { desc = "Open yazi" })
+
 function _G.set_terminal_keymaps()
     local opts = { buffer = 0 }
     vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], opts)

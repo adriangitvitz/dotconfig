@@ -2,6 +2,7 @@ return {
     'stevearc/dressing.nvim',
     config = function()
         require('dressing').setup({
+            select = { backend = { "telescope", "builtin" } },
             input = {
                 enabled = true,      -- Enable floating input
                 default_prompt = "Input: ",

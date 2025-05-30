@@ -2,21 +2,55 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-        "hrsh7th/cmp-nvim-lsp",
         "mfussenegger/nvim-jdtls"
     },
     config = function()
         local lspconfig = require("lspconfig")
         local util = require("lspconfig.util")
-        local cmp_nvim_lsp = require("cmp_nvim_lsp")
         local keymap = vim.keymap
         local opts = { noremap = true, silent = true }
-        local capabilities = cmp_nvim_lsp.default_capabilities()
-        local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-        for type, icon in pairs(signs) do
-            local hl = "DiagnosticSign" .. type
-            vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-        end
+        local capabilities = require('blink.cmp').get_lsp_capabilities()
+
+        capabilities.textDocument.completion.completionItem.documentationFormat = { "markdown", "plaintext" }
+        capabilities.textDocument.completion.completionItem.snippetSupport = true
+        capabilities.textDocument.completion.completionItem.preselectSupport = true
+        capabilities.textDocument.completion.completionItem.insertReplaceSupport = true
+        capabilities.textDocument.completion.completionItem.labelDetailsSupport = true
+        capabilities.textDocument.completion.completionItem.deprecatedSupport = true
+        capabilities.textDocument.completion.completionItem.commitCharactersSupport = true
+        capabilities.textDocument.completion.completionItem.tagSupport = { valueSet = { 1 } }
+        capabilities.textDocument.completion.completionItem.resolveSupport =
+        { properties = { "documentation", "detail", "additionalTextEdits" } }
+        capabilities.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
+
+        vim.diagnostic.config({
+            signs            = {
+                text = {
+                    [vim.diagnostic.severity.ERROR] = " ",
+                    [vim.diagnostic.severity.HINT] = " ",
+                    [vim.diagnostic.severity.WARN] = "󰠠 ",
+                    [vim.diagnostic.severity.INFO] = " ",
+                },
+            },
+            update_in_insert = true,
+            float            = {
+                focused = false,
+                style = "minimal",
+                border = "rounded",
+                source = "always",
+                header = "",
+                prefix = "",
+            },
+            virtual_text     = true,
+            underline        = true,
+            severity_sort    = true,
+        })
+
+        -- local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
+        -- for type, icon in pairs(signs) do
+        --     local hl = "DiagnosticSign" .. type
+        --     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
+        -- end
 
         local on_attach = function(client, bufnr)
             if client.server_capabilities.codeLensProvider then
@@ -41,15 +75,19 @@ return {
             opts.desc = "Show LSP references"
             keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts) -- show definition, references
 
-            opts.desc = "Go to declaration"
-            keymap.set("n", "gD", vim.lsp.buf.declaration, opts) -- go to declaration
+            -- opts.desc = "Go to declaratuon"
+            -- keymap.set("n", "gD", vim.lsp.buf.definition, opts) -- go to declaration
 
             opts.desc = "Show LSP definitions"
             keymap.set("n", "gD", "<cmd>Lspsaga peek_definition<CR>", { silent = true, desc = opts.desc })
             -- keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", opts) -- show lsp definitions
 
             opts.desc = "Show LSP implementations"
-            keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts) -- show lsp implementations
+            if client.server_capabilities.implementationProvider then
+                keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts)
+            else -- pyright path
+                keymap.set("n", "gi", "<cmd>Telescope lsp_definitions<CR>", opts)
+            end
 
             opts.desc = "Show LSP type definitions"
             keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts) -- show lsp type definitions
@@ -196,13 +234,13 @@ return {
         })
 
         -- configure python server
-        local function organize_imports()
-            local params = {
-                command = "pyright.organizeimports",
-                arguments = { vim.uri_from_bufnr(0) },
-            }
-            vim.lsp.buf.execute_command(params)
-        end
+        -- local function organize_imports()
+        --     local params = {
+        --         command = "pyright.organizeimports",
+        --         arguments = { vim.uri_from_bufnr(0) },
+        --     }
+        --     vim.lsp.buf.execute_command(params)
+        -- end
 
         local function set_python_path(path)
             local clients = vim.lsp.get_clients({
@@ -237,13 +275,16 @@ return {
                     disableOrganizeImports = true,
                 },
                 python = {
+                    venvPath = vim.fn.getcwd(), -- project root
+                    venv     = ".venv",
                     analysis = {
-                        ignore = { "*" },
+                        -- ignore = { "*" },
                         -- Enable autocompletion
                         autoImportCompletions = true,
                         -- Improve completion quality
                         typeCheckingMode = "off",
-                        useLibraryCodeForTypes = true
+                        autoSearchPaths = true,
+                        useLibraryCodeForTypes = true,
                     },
                 },
             },
@@ -326,13 +367,34 @@ return {
         })
 
         lspconfig["terraformls"].setup({
+            cmd          = { 'terraform-ls', 'serve' },
+            filetypes    = { 'terraform', 'terraform-vars', 'hcl' }, -- tfvars/hcl need v0.35+
+            root_dir     = util.root_pattern('.terraform', '.git', 'main.tf'),
             capabilities = capabilities,
-            on_attach = on_attach,
-            filetypes = { "terraform", "tf" },
-            cmd = { "terraform-ls", "serve" },
-            root_dir = function(fname)
-                return util.root_pattern(table.unpack({ "*.tf", "*.tfvars" }))(fname)
-            end,
+            on_attach    = on_attach,
+            settings     = {
+                ['terraform-ls'] = {
+                    excludeRootModules = {},     -- directories the server must ignore
+                    experimentalFeatures = {
+                        diagnostics      = true, -- inline validate/plan errors
+                        moduleCompletion = true, -- auto-complete remote modules
+                        stacks           = true, -- v0.35: completion for *.tfstack files
+                    },
+                },
+                terraform = {
+                    languageServer = {
+                        logLevel = 'info', -- trace|debug|info|warn|error|off
+                        maxNumberOfProblems = 100,
+                    },
+                },
+            },
+
+            -- Some knobs are still only in initOptions as of v0.36
+            init_options = {
+                experimentalFeatures = {
+                    prefillRequiredFields = true, -- fills required attrs when you hit <CR>
+                },
+            },
         })
 
         lspconfig["cssls"].setup({
@@ -341,23 +403,30 @@ return {
             filetypes = { "css" },
         })
 
-        lspconfig["marksman"].setup({
-            filetypes = { "markdown", "quarto" },
-            cmd = { "marksman", "server" },
-            root_dir = lspconfig.util.root_pattern(".git", ".marksman.toml", ".root"),
-            settings = {
-                markdown = {
-                    enableWikiLinks = true,
-                    enableFootnotes = true,
-                }
-            },
-        })
+        -- lspconfig["marksman"].setup({
+        --     filetypes = { "markdown", "quarto" },
+        --     cmd = { "marksman", "server" },
+        --     root_dir = lspconfig.util.root_pattern(".git", ".marksman.toml", ".root"),
+        --     settings = {
+        --         markdown = {
+        --             enableWikiLinks = true,
+        --             enableFootnotes = true,
+        --         }
+        --     },
+        -- })
 
         lspconfig["zls"].setup({
             capabilities = capabilities,
             on_attach = on_attach,
             filetypes = { "zig" },
         })
+
+        lspconfig["gleam"].setup({
+            capabilities = capabilities,
+            on_attach = on_attach,
+            filetypes = { "gleam" },
+        })
+
 
         -- lspconfig["elixirls"].setup({
         --     capabilities = capabilities,

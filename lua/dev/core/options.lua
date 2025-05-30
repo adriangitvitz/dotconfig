@@ -41,6 +41,8 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.shell = "/bin/zsh"
 
+vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+
 vim.api.nvim_set_keymap('n', 'Q', '<Nop>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', 'q', '<Nop>', { noremap = true, silent = true })
 

@@ -4,11 +4,16 @@ return -- lazy.nvim
     event = "VeryLazy",
     opts = {
         lsp = {
-            override = {
-                ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-                ["vim.lsp.util.stylize_markdown"] = true,
-                ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
-            },
+            hover = { enabled = false },
+            signature = { enabled = false },
+            progress = { enabled = false },
+            message = { enabled = false },
+            smart_move = { enabled = false },
+            -- override = {
+            --     ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+            --     ["vim.lsp.util.stylize_markdown"] = true,
+            --     ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+            -- },
         },
         presets = {
             bottom_search = true,         -- use a classic bottom cmdline for search
