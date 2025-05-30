@@ -1,0 +1,15 @@
+home: ~/.config/nap
+default_language: go
+theme: kera-dark 
+
+background: "0"
+foreground: "7"
+primary_color: "#92a1ba"
+primary_color_subdued: "#9dafc6"
+green: "#88ad9c"
+bright_green: "#88ad9c"
+bright_red: "#db9b9b"
+red: "#db9b9b"
+black: "#080E17"
+gray: "#aaaaaa"
+white: "#e0e2ea"

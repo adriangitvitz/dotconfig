@@ -1,0 +1,101 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+add_newline = true
+format = """
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$cmd_duration\
+$line_break\
+$python\
+$character"""
+
+[os]
+format = "$symbol"
+disabled = false
+
+[os.symbols]
+Alpine = ''
+Amazon = ''
+Android = ''
+Arch = '󰣇'
+CentOS = ''
+Debian = ''
+EndeavourOS = ''
+Fedora = ''
+FreeBSD = ''
+Garuda = ''
+Gentoo = ''
+Linux = ''
+Macos = ''
+Manjaro = ''
+Mariner = ''
+Mint = ''
+NetBSD = ''
+NixOS = ''
+OpenBSD = ''
+OpenCloudOS = ''
+openEuler = ''
+openSUSE = ''
+OracleLinux = '⊂⊃'
+Pop = ''
+Raspbian = ''
+Redhat = ''
+RedHatEnterprise = ''
+Solus = ''
+SUSE = ''
+Ubuntu = ''
+Unknown = ''
+Windows = ''
+
+[character]
+success_symbol = "[╰─❯](#c6944f)"
+error_symbol = "[╰─×](#cd5c5c)"
+
+[git_branch]
+format = "[ $symbol $branch ]($style) "
+symbol = ""
+style = "#88aa22"
+
+[directory]
+format = "[](#080E17)[$path]($style)[ ](#080E17)"
+style = "fg:#c6944f bg:#080E17"
+truncate_to_repo=false
+
+[username]
+style_user = "#8CA5A8"
+show_always = true
+
+[time]
+format = "[$time](#e8ae5b)"
+time_format = "%a, %I:%M %p"
+disabled = false
+
+[python]
+pyenv_version_name = false
+pyenv_prefix = "pyenv "
+python_binary = [
+    ["python"],
+    ["python3"],
+    ["python2"],
+]
+format = "via [🐍 $virtualenv]($style) "
+version_format = "v${raw}"
+style = "yellow bold"
+symbol = "🐍 "
+disabled = false
+detect_extensions = [
+    "py",
+    "ipynb",
+]
+detect_files = [
+    "requirements.txt",
+    ".python-version",
+    "pyproject.toml",
+    "Pipfile",
+    "tox.ini",
+    "setup.py",
+    "__init__.py",
+]
+detect_folders = []
+detect_env_vars = ["VIRTUAL_ENV"]
