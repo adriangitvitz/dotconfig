@@ -40,6 +40,7 @@ vim.keymap.set('i', '<C-s>', '<Esc>', { noremap = true, silent = true })
 vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.shell = "/bin/zsh"
+vim.o.background = "dark"
 
 vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 

@@ -62,10 +62,10 @@ return {
                 })
             end
 
-            if client.name == 'ruff' then
-                -- Disable hover in favor of Pyright
-                client.server_capabilities.hoverProvider = false
-            end
+            -- if client.name == 'ruff' then
+            --     -- Disable hover in favor of Pyright
+            --     client.server_capabilities.hoverProvider = false
+            -- end
 
             -- require("navigator").setup({ client = client })
 
@@ -174,73 +174,72 @@ return {
             },
         })
 
-        lspconfig["ruff"].setup({
-            capabilities = (function()
-                capabilities.completionProvider = false
-                return capabilities
-            end)(),
-            init_options = {
-                settings = {
-                    configurationPreference = "filesystemFirst",
-                    logLevel = "debug",
-                    codeAction = {
-                        disableRuleComment = {
-                            enable = false
-                        }
-                    },
-                    lint = {
-                        enable = true,
-                        select = { "F", "E", "W", "I", "C90" },
-                        ignore = { "E501", "T201" }
-                    },
-                    format = {
-                        enable = true,
-                        docstringCodeStyle = "google",
-                        args = { "--line-length=120" }
-                    }
-                }
-            },
-            handlers = {
-                ["textDocument/publishDiagnostics"] = vim.lsp.with(
-                    vim.lsp.diagnostic.on_publish_diagnostics, {
-                        virtual_text = { prefix = "■", spacing = 2 }
-                    }
-                )
-            },
-            commands = {
-                RuffAutofix = {
-                    function()
-                        vim.lsp.buf.execute_command {
-                            command = 'ruff.applyAutofix',
-                            arguments = {
-                                { uri = vim.uri_from_bufnr(0) },
-                            },
-                        }
-                    end,
-                    description = 'Ruff: Fix all auto-fixable problems',
-                },
-                RuffOrganizeImports = {
-                    function()
-                        vim.lsp.buf.execute_command {
-                            command = 'ruff.applyOrganizeImports',
-                            arguments = {
-                                { uri = vim.uri_from_bufnr(0) },
-                            },
-                        }
-                    end,
-                    description = 'Ruff: Format imports',
-                },
-            },
-        })
+        -- lspconfig["ruff"].setup({
+        --     capabilities = (function()
+        --         capabilities.completionProvider = false
+        --         return capabilities
+        --     end)(),
+        --     init_options = {
+        --         settings = {
+        --             configurationPreference = "filesystemFirst",
+        --             logLevel = "debug",
+        --             codeAction = {
+        --                 disableRuleComment = {
+        --                     enable = false
+        --                 }
+        --             },
+        --             lint = {
+        --                 enable = true,
+        --                 select = { "F", "E", "W", "I", "C90" },
+        --                 ignore = { "E501", "T201" }
+        --             },
+        --             format = {
+        --                 enable = true,
+        --                 docstringCodeStyle = "google",
+        --                 args = { "--line-length=120" }
+        --             }
+        --         }
+        --     },
+        --     handlers = {
+        --         ["textDocument/publishDiagnostics"] = vim.lsp.with(
+        --             vim.lsp.diagnostic.on_publish_diagnostics, {
+        --                 virtual_text = { prefix = "■", spacing = 2 }
+        --             }
+        --         )
+        --     },
+        --     commands = {
+        --         RuffAutofix = {
+        --             function()
+        --                 vim.lsp.buf.execute_command {
+        --                     command = 'ruff.applyAutofix',
+        --                     arguments = {
+        --                         { uri = vim.uri_from_bufnr(0) },
+        --                     },
+        --                 }
+        --             end,
+        --             description = 'Ruff: Fix all auto-fixable problems',
+        --         },
+        --         RuffOrganizeImports = {
+        --             function()
+        --                 vim.lsp.buf.execute_command {
+        --                     command = 'ruff.applyOrganizeImports',
+        --                     arguments = {
+        --                         { uri = vim.uri_from_bufnr(0) },
+        --                     },
+        --                 }
+        --             end,
+        --             description = 'Ruff: Format imports',
+        --         },
+        --     },
+        -- })
 
-        -- configure python server
-        -- local function organize_imports()
-        --     local params = {
-        --         command = "pyright.organizeimports",
-        --         arguments = { vim.uri_from_bufnr(0) },
-        --     }
-        --     vim.lsp.buf.execute_command(params)
-        -- end
+        local function organize_imports()
+            local params = {
+                command = "pyright.organizeimports",
+                arguments = { vim.uri_from_bufnr(0) },
+            }
+            vim.lsp.buf.execute_command(params)
+        end
 
         local function set_python_path(path)
             local clients = vim.lsp.get_clients({
@@ -278,21 +277,22 @@ return {
                     venvPath = vim.fn.getcwd(), -- project root
                     venv     = ".venv",
                     analysis = {
+                        diagnosticMode         = "workspace", -- "openFilesOnly" | "workspace" :contentReference[oaicite:0]{index=0}
                         -- ignore = { "*" },
                         -- Enable autocompletion
-                        autoImportCompletions = true,
+                        autoImportCompletions  = true,
                         -- Improve completion quality
-                        typeCheckingMode = "off",
-                        autoSearchPaths = true,
+                        typeCheckingMode       = "off",
+                        autoSearchPaths        = true,
                         useLibraryCodeForTypes = true,
                     },
                 },
             },
             commands = {
-                -- PyrightOrganizeImports = {
-                --     organize_imports,
-                --     description = "Organize Imports",
-                -- },
+                PyrightOrganizeImports = {
+                    organize_imports,
+                    description = "Organize Imports",
+                },
                 PyrightSetPythonPath = {
                     set_python_path,
                     description = "Reconfigure pyright with the provided python path",
