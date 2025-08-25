@@ -1,0 +1,102 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+add_newline = true
+format = """
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$cmd_duration\
+$python\
+$character"""
+
+palette = "serendipity_midnight"
+
+[palettes.serendipity_midnight]
+bg_dark      = "#1C1E2D"
+fg_light     = "#DEE0EF"
+gold         = "#F8D2C9"
+blue         = "#5BA2D0"
+purple       = "#A78BFA"
+cyan         = "#9CCFD8"
+orange       = "#EE8679"
+muted        = "#8D8F9E"
+accent       = "#94B8FF"
+
+[os]
+format = "$symbol"
+disabled = false
+
+[os.symbols]
+Alpine = ''
+Amazon = ''
+Android = ''
+Arch = '󰣇'
+CentOS = ''
+Debian = ''
+EndeavourOS = ''
+Fedora = ''
+FreeBSD = ''
+Garuda = ''
+Gentoo = ''
+Linux = ''
+Macos = ''
+Manjaro = ''
+Mariner = ''
+Mint = ''
+NetBSD = ''
+NixOS = ''
+OpenBSD = ''
+OpenCloudOS = ''
+openEuler = ''
+openSUSE = ''
+OracleLinux = '⊂⊃'
+Pop = ''
+Raspbian = ''
+Redhat = ''
+RedHatEnterprise = ''
+Solus = ''
+SUSE = ''
+Ubuntu = ''
+Unknown = ''
+Windows = ''
+
+[character]
+success_symbol = "[─❯](fg:blue)"
+error_symbol = "[─×](fg:orange)"
+
+[directory]
+format = "[](fg:bg_dark)[$path]($style)[ ](fg:bg_dark)"
+style = "fg:gold bg:bg_dark"
+
+[username]
+style_user = "fg:muted"
+show_always = true
+
+[time]
+format = "[$time](fg:gold)"
+time_format = "%a, %I:%M %p"
+disabled = true
+
+[git_branch]
+format = "[ $symbol $branch ]($style) "
+symbol = ""
+style = "fg:cyan"
+
+[git_state]
+style = "fg:purple"
+format = "[$state( $progress_current/$progress_total )]($style)"
+
+[git_status]
+format = "[$all_status$ahead_behind]($style)"
+style = "fg:orange"
+
+[cmd_duration]
+style = "fg:purple"
+format = "⏱ [$duration]($style) "
+
+[python]
+format = "via [🐍 $virtualenv]($style) "
+style = "fg:blue"
+symbol = "🐍 "
+disabled = false
+
