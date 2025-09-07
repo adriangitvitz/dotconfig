@@ -2,26 +2,36 @@ return {
     'akinsho/toggleterm.nvim',
     version = "*",
     keys = {
-        { "<c-o>t",     desc = "Toggle Terminal (Bottom)" },
-        { "<c-o>T",     desc = "Toggle Terminal (Tab)" },
+        { "<C-\\>", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal" },
+        { "<leader>tf", "<cmd>ToggleTerm direction=float<cr>", desc = "Float terminal" },
+        { "<leader>th", "<cmd>ToggleTerm direction=horizontal<cr>", desc = "Horizontal terminal" },
+        { "<leader>tv", "<cmd>ToggleTerm direction=vertical size=80<cr>", desc = "Vertical terminal" },
+        { "<c-o>t", "<cmd>ToggleTerm direction=horizontal<cr>", desc = "Toggle Terminal (Bottom)" },
         { "<leader>zd", "<cmd>lua _lazydocker_toggle()<CR>", desc = "Lazydocker" },
-        { "<leader>vG", "<cmd>lua _ghdash_toggle()<CR>",     desc = "Git Dash" },
+        { "<leader>vG", "<cmd>lua _ghdash_toggle()<CR>", desc = "Git Dash" },
     },
     config = function()
         local toggleterm = require("toggleterm")
         toggleterm.setup({
-            size = 20,
+            size = function(term)
+                if term.direction == "horizontal" then return 15
+                elseif term.direction == "vertical" then return vim.o.columns * 0.3
+                end
+            end,
             hide_numbers = true,
-            open_mapping = [[<c-o>t]], -- This opens at the bottom
+            open_mapping = [[<C-\>]], -- Ghostty-optimized mapping
             shade_filetypes = {},
-            shade_terminals = false,
+            shade_terminals = false, -- Ghostty handles transparency better
             shading_factor = 0.1,
             start_in_insert = true,
             persist_size = true,
-            direction = "horizontal", -- Default direction (bottom)
+            direction = "horizontal",
             close_on_exit = true,
+            -- Ghostty-optimized float config
             float_opts = {
                 border = "curved",
+                width = function() return math.floor(vim.o.columns * 0.8) end,
+                height = function() return math.floor(vim.o.lines * 0.8) end,
                 highlights = {
                     border = "Normal",
                     background = "Normal",

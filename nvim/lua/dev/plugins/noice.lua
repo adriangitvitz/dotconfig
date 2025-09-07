@@ -4,8 +4,8 @@ return -- lazy.nvim
     event = "VeryLazy",
     opts = {
         lsp = {
-            hover = { enabled = false },
-            signature = { enabled = false },
+            hover = { enabled = false },      -- Let our custom LSP handler take precedence
+            signature = { enabled = false },  -- Let our custom LSP handler take precedence
             progress = { enabled = false },
             message = { enabled = false },
             smart_move = { enabled = false },
@@ -17,10 +17,10 @@ return -- lazy.nvim
         },
         presets = {
             bottom_search = true,         -- use a classic bottom cmdline for search
-            command_palette = true,       -- position the cmdline and popupmenu together
+            command_palette = false,      -- disable to prevent search interference
             long_message_to_split = true, -- long messages will be sent to a split
             inc_rename = false,           -- enables an input dialog for inc-rename.nvim
-            lsp_doc_border = false,       -- add a border to hover docs and signature help
+            lsp_doc_border = true,        -- enable border for hover docs and signature help
         },
         messages = {
             enabled = false

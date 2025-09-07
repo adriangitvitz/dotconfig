@@ -7,8 +7,8 @@ return {
     config = function()
         local lspconfig = require("lspconfig")
         local util = require("lspconfig.util")
-        local keymap = vim.keymap
-        local opts = { noremap = true, silent = true }
+        -- local keymap = vim.keymap
+        -- local opts = { noremap = true, silent = true }
         local capabilities = require('blink.cmp').get_lsp_capabilities()
 
         capabilities.textDocument.completion.completionItem.documentationFormat = { "markdown", "plaintext" }
@@ -23,6 +23,81 @@ return {
         { properties = { "documentation", "detail", "additionalTextEdits" } }
         capabilities.textDocument.foldingRange = { dynamicRegistration = false, lineFoldingOnly = true }
 
+        -- Custom border with rounded corners for LSP floating windows
+        local lsp_border_chars = {
+            { "╭", "LspFloatWinBorder" },
+            { "─", "LspFloatWinBorder" },
+            { "╮", "LspFloatWinBorder" },
+            { "│", "LspFloatWinBorder" },
+            { "╯", "LspFloatWinBorder" },
+            { "─", "LspFloatWinBorder" },
+            { "╰", "LspFloatWinBorder" },
+            { "│", "LspFloatWinBorder" },
+        }
+
+        -- Set up custom highlight groups for LSP floating windows
+        local function setup_lsp_float_highlights()
+            -- Use your colorscheme's colors for consistent theming
+            vim.api.nvim_set_hl(0, "LspFloatWinNormal", {
+                bg = "#1C1E2D",     -- Your base color
+                fg = "#F0F0F0",     -- Your text color
+            })
+            vim.api.nvim_set_hl(0, "LspFloatWinBorder", {
+                bg = "#1C1E2D",     -- Match window background
+                fg = "#F5C27D",     -- Your peach accent color
+            })
+            vim.api.nvim_set_hl(0, "LspFloatTitle", {
+                bg = "#F5C27D",     -- Peach background for title
+                fg = "#1C1E2D",     -- Dark text on light background
+                bold = true,
+            })
+        end
+
+        -- Apply highlights on colorscheme change
+        vim.api.nvim_create_autocmd("ColorScheme", {
+            pattern = "*",
+            callback = setup_lsp_float_highlights,
+        })
+        setup_lsp_float_highlights() -- Apply immediately
+
+        -- Force override LSP handlers to ensure our custom borders are used
+        local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
+        function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+            opts = opts or {}
+            opts.border = opts.border or lsp_border_chars
+            opts.max_width = opts.max_width or 80  
+            opts.max_height = opts.max_height or 20
+            opts.wrap = true
+            opts.winblend = 0
+            opts.winhighlight = "Normal:LspFloatWinNormal,FloatBorder:LspFloatWinBorder,FloatTitle:LspFloatTitle"
+            return orig_util_open_floating_preview(contents, syntax, opts, ...)
+        end
+
+        -- Configure LSP hover and signature help windows
+        vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+            border = lsp_border_chars,
+            title = " 󰋖 Documentation ",
+            title_pos = "center", 
+            focusable = true,
+            close_events = { "CursorMoved", "BufHidden", "InsertCharPre" },
+            max_width = 80,
+            max_height = 20,
+            wrap = true,
+            silent = true,
+        })
+
+        vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+            border = lsp_border_chars,
+            title = " 󰊕 Signature ",
+            title_pos = "center",
+            focusable = true,
+            close_events = { "CursorMoved", "BufHidden", "InsertCharPre" },
+            max_width = 80,
+            max_height = 15,
+            wrap = true,
+            silent = true,
+        })
+
         vim.diagnostic.config({
             signs            = {
                 text = {
@@ -32,16 +107,31 @@ return {
                     [vim.diagnostic.severity.INFO] = " ",
                 },
             },
-            update_in_insert = true,
+            update_in_insert = false,
             float            = {
                 focused = false,
                 style = "minimal",
-                border = "rounded",
+                border = lsp_border_chars,
                 source = "always",
                 header = "",
                 prefix = "",
+                max_width = 80,
+                max_height = 20,
+                wrap = true,
+                winhighlight = "Normal:LspFloatWinNormal,FloatBorder:LspFloatWinBorder",
             },
-            virtual_text     = true,
+            virtual_text     = { 
+                severity = { min = vim.diagnostic.severity.WARN },
+                spacing = 2,
+                prefix = "●",
+                format = function(diagnostic)
+                    -- Truncate long diagnostic messages for performance
+                    if #diagnostic.message > 100 then
+                        return diagnostic.message:sub(1, 97) .. "..."
+                    end
+                    return diagnostic.message
+                end
+            },
             underline        = true,
             severity_sort    = true,
         })
@@ -53,82 +143,77 @@ return {
         -- end
 
         local on_attach = function(client, bufnr)
+            -- Performance optimization: throttle codelens refresh
             if client.server_capabilities.codeLensProvider then
+                local timer = nil
                 vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
                     buffer = bufnr,
                     callback = function()
-                        vim.lsp.codelens.refresh()
+                        if timer then
+                            timer:stop()
+                        end
+                        timer = vim.defer_fn(function()
+                            vim.lsp.codelens.refresh()
+                        end, 500) -- Throttle to 500ms
                     end,
                 })
             end
 
-            -- if client.name == 'ruff' then
-            --     -- Disable hover in favor of Pyright
-            --     client.server_capabilities.hoverProvider = false
-            -- end
-
-            -- require("navigator").setup({ client = client })
-
-            opts.buffer = bufnr
-
-            -- set keybinds
-            opts.desc = "Show LSP references"
-            keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts) -- show definition, references
-
-            -- opts.desc = "Go to declaratuon"
-            -- keymap.set("n", "gD", vim.lsp.buf.definition, opts) -- go to declaration
-
-            opts.desc = "Show LSP definitions"
-            keymap.set("n", "gD", "<cmd>Lspsaga peek_definition<CR>", { silent = true, desc = opts.desc })
-            -- keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", opts) -- show lsp definitions
-
-            opts.desc = "Show LSP implementations"
-            if client.server_capabilities.implementationProvider then
-                keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts)
-            else -- pyright path
-                keymap.set("n", "gi", "<cmd>Telescope lsp_definitions<CR>", opts)
+            -- Performance: Disable expensive features for large files
+            local file_size = vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr))
+            if file_size > 200 * 1024 then -- 200KB threshold
+                client.server_capabilities.documentHighlightProvider = false
+                client.server_capabilities.documentFormattingProvider = false
             end
 
-            opts.desc = "Show LSP type definitions"
-            keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts) -- show lsp type definitions
+            -- Language-specific optimizations
+            if client.name == 'pyright' then
+                -- Optimize for Python data science work
+                local filetype = vim.bo[bufnr].filetype
+                if filetype == "python" then
+                    -- Check for data science imports in the file
+                    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, 50, false)
+                    local has_data_libs = false
+                    for _, line in ipairs(lines) do
+                        if line:match("import numpy") or line:match("import pandas") or 
+                           line:match("from numpy") or line:match("from pandas") then
+                            has_data_libs = true
+                            break
+                        end
+                    end
+                    
+                    if has_data_libs then
+                        -- Optimize completion for data science libraries
+                        client.server_capabilities.completionProvider.triggerCharacters = { ".", "[", "(" }
+                    end
+                end
+            end
 
-            opts.desc = "See available code actions"
-            keymap.set({ "n", "v" }, "<leader>ca", "<cmd>Lspsaga code_action<CR>", { buffer = bufnr, desc = opts.desc })
-            -- keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts) -- see available code actions, in visual mode will apply to selection
+            -- in lspconfig.lua on_attach
+            local tb = require("telescope.builtin")
 
-            opts.desc = "Smart rename"
-            keymap.set("n", "<leader>rn", "<cmd>Lspsaga rename<CR>", { buffer = bufnr, desc = opts.desc })
-            -- keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts) -- smart rename
+            vim.keymap.set("n", "gd", tb.lsp_definitions, { buffer = bufnr, desc = "Definitions" })
+            vim.keymap.set("n", "gD", tb.lsp_type_definitions, { buffer = bufnr, desc = "Type Definitions" })
+            vim.keymap.set("n", "gr", tb.lsp_references, { buffer = bufnr, desc = "References" })
+            vim.keymap.set("n", "gi", tb.lsp_implementations, { buffer = bufnr, desc = "Implementations" })
 
-            opts.desc = "Show buffer diagnostics"
-            keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", opts) -- show  diagnostics for file
-
-            opts.desc = "Show line diagnostics"
-            keymap.set("n", "<leader>cd", "<cmd>Lspsaga show_line_diagnostics<CR>", { silent = true, desc = opts.desc })
-            -- keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts) -- show diagnostics for line
-
-            opts.desc = "Go to previous diagnostic"
-            keymap.set("n", "[d", "<cmd>Lspsaga diagnostic_jump_prev<CR>", { buffer = bufnr, desc = opts.desc })
-            -- keymap.set("n", "[d", vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
-
-            opts.desc = "Go to next diagnostic"
-            keymap.set("n", "]d", "<cmd>Lspsaga diagnostic_jump_next<CR>", { buffer = bufnr, desc = opts.desc })
-            -- keymap.set("n", "]d", vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
-
-            opts.desc = "Show documentation for what is under cursor"
-            keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { silent = true, desc = opts.desc })
-            -- keymap.set("n", "K", vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
-
-            opts.desc = "Show Codelens"
-            keymap.set("n", "cd", vim.lsp.codelens.run, opts)
-
-            opts.desc = "Restart LSP"
-            keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
-
-            opts.desc = "Hierarchy Visualization"
-            keymap.set("n", "<leader>th", "<cmd>Lspsaga peek_type_definition<CR>", { buffer = bufnr, desc = opts.desc })
-            -- opts.desc = "Format with LSP"
-            -- keymap.set("n", "<leader>lf", vim.lsp.buf.format({ async = false }), opts) -- mapping to restart lsp if necessary
+            -- Enhanced hover with double K to focus the hover window
+            local function enhanced_hover()
+                local winid = vim.lsp.buf.hover()
+                if winid then
+                    vim.keymap.set("n", "K", function()
+                        vim.api.nvim_set_current_win(winid)
+                    end, { buffer = bufnr, desc = "Focus hover window" })
+                end
+            end
+            vim.keymap.set("n", "K", enhanced_hover, { buffer = bufnr, desc = "Hover (K again to focus)" })
+            vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code Action" })
+            vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
+            vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { buffer = bufnr, desc = "Next diagnostic" })
+            vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { buffer = bufnr, desc = "Prev diagnostic" })
+            vim.keymap.set("n", "<leader>dd", function() tb.diagnostics({ bufnr = 0 }) end,
+                { buffer = bufnr, desc = "Buffer diagnostics" })
+            vim.keymap.set("n", "<leader>cL", vim.lsp.codelens.run, { buffer = bufnr, desc = "Run CodeLens" })
         end
 
 
@@ -254,14 +339,24 @@ return {
         end
 
         lspconfig["pyright"].setup({
-            on_attach = on_attach,
+            on_attach = function(client, bufnr)
+                on_attach(client, bufnr)
+                
+                -- Performance optimization for large Python files
+                local file_size = vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr))
+                if file_size > 500 * 1024 then -- 500KB
+                    -- Reduce features for large files
+                    client.server_capabilities.semanticTokensProvider = nil
+                    client.server_capabilities.documentHighlightProvider = nil
+                end
+            end,
             capabilities = capabilities,
             cmd = { "pyright-langserver", "--stdio" },
             filetypes = { "python" },
             root_dir = function(fname)
                 return util.root_pattern(unpack({
                     "pyproject.toml",
-                    "setup.py",
+                    "setup.py", 
                     "setup.cfg",
                     "requirements.txt",
                     "Pipfile",
@@ -272,19 +367,52 @@ return {
             settings = {
                 pyright = {
                     disableOrganizeImports = true,
+                    -- Performance improvements
+                    disableLanguageServices = false,
+                    disableTaggedHints = false,
                 },
                 python = {
-                    venvPath = vim.fn.getcwd(), -- project root
-                    venv     = ".venv",
+                    venvPath = vim.fn.getcwd(),
+                    venv = ".venv",
                     analysis = {
-                        diagnosticMode         = "workspace", -- "openFilesOnly" | "workspace" :contentReference[oaicite:0]{index=0}
-                        -- ignore = { "*" },
-                        -- Enable autocompletion
-                        autoImportCompletions  = true,
-                        -- Improve completion quality
-                        typeCheckingMode       = "off",
-                        autoSearchPaths        = true,
+                        -- Performance optimizations
+                        diagnosticMode = "openFilesOnly", -- Better performance than workspace
+                        autoImportCompletions = true,
+                        typeCheckingMode = "basic", -- Changed from "off" for better intellisense
+                        autoSearchPaths = true,
                         useLibraryCodeForTypes = true,
+                        
+                        -- Numpy/Data Science optimizations
+                        stubPath = vim.fn.stdpath("data") .. "/lazy/python-type-stubs",
+                        typeshedPaths = {},
+                        
+                        -- Performance settings for large codebases
+                        indexing = true,
+                        packageIndexDepths = {
+                            {
+                                name = "",
+                                depth = 2,
+                                includeAllSymbols = false
+                            }
+                        },
+                        
+                        -- Exclude problematic patterns that slow down numpy
+                        exclude = {
+                            "**/node_modules",
+                            "**/__pycache__",
+                            "**/.*",
+                            "**/build",
+                            "**/dist"
+                        },
+                        
+                        -- Improve completion for data science libraries
+                        extraPaths = {},
+                        
+                        -- Memory management
+                        logLevel = "Information",
+                        watchForSourceChanges = true,
+                        watchForLibraryChanges = false, -- Disable for better performance
+                        watchForConfigChanges = true,
                     },
                 },
             },
@@ -403,6 +531,32 @@ return {
             filetypes = { "css" },
         })
 
+        -- JSON LSP with performance optimizations
+        lspconfig["jsonls"].setup({
+            capabilities = capabilities,
+            on_attach = function(client, bufnr)
+                on_attach(client, bufnr)
+                
+                -- Disable LSP for very large JSON files
+                local file_size = vim.fn.getfsize(vim.api.nvim_buf_get_name(bufnr))
+                if file_size > 1024 * 1024 then -- 1MB
+                    client.stop()
+                    return
+                end
+            end,
+            settings = {
+                json = {
+                    schemas = require('schemastore').json.schemas(),
+                    validate = { enable = true },
+                    -- Performance settings
+                    maxItemsComputed = 5000,
+                    trace = { server = "off" },
+                },
+            },
+            filetypes = { "json", "jsonc" },
+        })
+
+        -- YAML LSP (already configured but optimizing)
         -- lspconfig["marksman"].setup({
         --     filetypes = { "markdown", "quarto" },
         --     cmd = { "marksman", "server" },

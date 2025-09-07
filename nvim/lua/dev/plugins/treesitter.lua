@@ -47,7 +47,8 @@ return {
                 "c",
                 "comment",
                 "elixir",
-                "latex"
+                "latex",
+                "norg"
             },
             highlight = {
                 enable = true,

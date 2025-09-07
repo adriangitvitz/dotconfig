@@ -5,7 +5,33 @@ return {
     lazy = false,
     ---@type snacks.Config
     opts = {
-        bigfile = { enabled = true },
+        bigfile = { 
+            enabled = true,
+            notify = true, -- show notification when big file is detected
+            size = 1.5 * 1024 * 1024, -- 1.5MB threshold (better for JSON)
+            ---@param ctx {buf: number, ft: string}
+            setup = function(ctx)
+                -- Enhanced setup for different file types
+                if ctx.ft == "json" or ctx.ft == "jsonc" then
+                    vim.b.minianimate_disable = true
+                    vim.opt_local.foldmethod = "syntax"
+                    vim.opt_local.foldlevel = 2
+                    vim.opt_local.synmaxcol = 500 -- limit syntax highlighting width
+                end
+                vim.opt_local.spell = false
+                vim.opt_local.swapfile = false
+                vim.opt_local.undofile = false
+                vim.opt_local.breakindent = false
+                vim.opt_local.colorcolumn = ""
+                vim.opt_local.statuscolumn = ""
+                vim.opt_local.signcolumn = "no"
+                vim.opt_local.foldcolumn = "0"
+                vim.opt_local.winbar = ""
+                vim.schedule(function()
+                    vim.bo[ctx.buf].syntax = ctx.ft
+                end)
+            end,
+        },
         dashboard = {
             enabled = true,
             sections = {
