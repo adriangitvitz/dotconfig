@@ -5,11 +5,11 @@ return {
         "nvim-tree/nvim-web-devicons"
     },
     keys = {
-        { "<leader>o", "<cmd>AerialToggle<cr>", desc = "Code outline" },
-        { "]a", "<cmd>AerialNext<cr>", desc = "Next symbol" },
-        { "[a", "<cmd>AerialPrev<cr>", desc = "Previous symbol" },
-        { "<leader>ao", "<cmd>AerialOpen<cr>", desc = "Open outline" },
-        { "<leader>ac", "<cmd>AerialClose<cr>", desc = "Close outline" },
+        { "<leader>o",  "<cmd>AerialToggle<cr>", desc = "Code outline" },
+        { "]a",         "<cmd>AerialNext<cr>",   desc = "Next symbol" },
+        { "[a",         "<cmd>AerialPrev<cr>",   desc = "Previous symbol" },
+        { "<leader>ao", "<cmd>AerialOpen<cr>",   desc = "Open outline" },
+        { "<leader>ac", "<cmd>AerialClose<cr>",  desc = "Close outline" },
     },
     opts = {
         backends = { "treesitter", "lsp", "markdown", "asciidoc", "man" },
@@ -57,7 +57,7 @@ return {
         -- Filter out symbols that are too noisy
         filter_kind = {
             "Class",
-            "Constructor", 
+            "Constructor",
             "Enum",
             "Function",
             "Interface",
@@ -87,7 +87,7 @@ return {
     },
     config = function(_, opts)
         require("aerial").setup(opts)
-        
+
         -- Auto-open for certain filetypes
         vim.api.nvim_create_autocmd("FileType", {
             pattern = { "python", "lua", "javascript", "typescript", "rust", "go" },

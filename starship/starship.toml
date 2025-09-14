@@ -1,16 +1,17 @@
 "$schema" = 'https://starship.rs/config-schema.json'
-add_newline = true
+
+add_newline = false
+
 format = """
 $directory\
 $git_branch\
-$git_state\
 $git_status\
-$cmd_duration\
+$git_state\
 $python\
+$cmd_duration\
 $character"""
 
 palette = "serendipity_midnight"
-
 [palettes.serendipity_midnight]
 bg_dark      = "#1C1E2D"
 fg_light     = "#DEE0EF"
@@ -22,81 +23,43 @@ orange       = "#EE8679"
 muted        = "#8D8F9E"
 accent       = "#94B8FF"
 
-[os]
-format = "$symbol"
-disabled = false
-
-[os.symbols]
-Alpine = ''
-Amazon = ''
-Android = ''
-Arch = '󰣇'
-CentOS = ''
-Debian = ''
-EndeavourOS = ''
-Fedora = ''
-FreeBSD = ''
-Garuda = ''
-Gentoo = ''
-Linux = ''
-Macos = ''
-Manjaro = ''
-Mariner = ''
-Mint = ''
-NetBSD = ''
-NixOS = ''
-OpenBSD = ''
-OpenCloudOS = ''
-openEuler = ''
-openSUSE = ''
-OracleLinux = '⊂⊃'
-Pop = ''
-Raspbian = ''
-Redhat = ''
-RedHatEnterprise = ''
-Solus = ''
-SUSE = ''
-Ubuntu = ''
-Unknown = ''
-Windows = ''
-
 [character]
-success_symbol = "[─❯](fg:blue)"
-error_symbol = "[─×](fg:orange)"
+success_symbol = "[❯](fg:blue)"
+error_symbol = "[×](fg:orange)"
 
 [directory]
-format = "[](fg:bg_dark)[$path]($style)[ ](fg:bg_dark)"
-style = "fg:gold bg:bg_dark"
-
-[username]
-style_user = "fg:muted"
-show_always = true
-
-[time]
-format = "[$time](fg:gold)"
-time_format = "%a, %I:%M %p"
-disabled = true
+style = "fg:gold bold"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
 
 [git_branch]
-format = "[ $symbol $branch ]($style) "
-symbol = ""
+symbol = ""
+format = "[ $symbol $branch ]($style)"
 style = "fg:cyan"
 
 [git_state]
 style = "fg:purple"
-format = "[$state( $progress_current/$progress_total )]($style)"
+format = '[\($state( $progress_current/$progress_total)\)]($style)'
 
 [git_status]
 format = "[$all_status$ahead_behind]($style)"
 style = "fg:orange"
 
 [cmd_duration]
+min_time = 1000  # Only show if command takes more than 1 second
 style = "fg:purple"
-format = "⏱ [$duration]($style) "
+format = "[ ⏱$duration ]($style)"
 
 [python]
-format = "via [🐍 $virtualenv]($style) "
+format = "[ 🐍 $virtualenv ]($style)"
 style = "fg:blue"
-symbol = "🐍 "
-disabled = false
 
+[os]
+disabled = true
+
+[username]
+disabled = true
+
+[time]
+disabled = true

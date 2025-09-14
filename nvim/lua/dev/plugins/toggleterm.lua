@@ -1,5 +1,6 @@
 return {
     'akinsho/toggleterm.nvim',
+    enabled = false, -- Replaced with FTerm
     version = "*",
     keys = {
         { "<C-\\>", "<cmd>ToggleTerm<cr>", desc = "Toggle terminal" },

@@ -5,14 +5,21 @@ font-style = "bold"
 
 cursor-style = bar
 
-font-size = 19
+# Keratoconus optimizations
+# Slightly larger for better readability
+font-size = 20
+# Better character definition
 font-thicken = true
-# minimum-contrast = 3.0
+# WCAG AAA compliance
+minimum-contrast = 7.0
  # background-opacity = 0.7
+# Solid background reduces eye strain
 background-opacity = 1
-background-blur = true
+# Disable blur for clarity
+background-blur = false
 background-blur-radius = 20
-theme = flexoki
+# Custom high-contrast theme
+theme = keratoconus-optimized
 # theme = dark:flexoki,light:flexoki
 window-padding-balance = true 
 window-save-state = always
@@ -56,3 +63,9 @@ keybind = cmd+s>e=equalize_splits
 
 # other
 copy-on-select = clipboard
+
+# Additional keratoconus optimizations
+cursor-style-blink = false
+mouse-hide-while-typing = true
+bold-is-bright = false
+unfocused-split-opacity = 0.7

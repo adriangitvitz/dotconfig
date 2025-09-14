@@ -185,7 +185,7 @@ return {
         { "<leader><space>", function() require("snacks").picker.smart() end,                                   desc = "Smart Find Files" },
         { "<leader>.",       function() require("snacks").scratch() end,                                        desc = "Toggle Scratch Buffer" },
         { "<leader>S",       function() require("snacks").scratch.select() end,                                 desc = "Select Scratch Buffer" },
-        { "<leader>n",       function() require("snacks").notifier.show_history() end,                          desc = "Notification History" },
+        { "<leader>sn",      function() require("snacks").notifier.show_history() end,                          desc = "Show Notifications" },
         { "<leader>lg",      function() require("snacks").lazygit() end,                                        desc = "Lazygit" },
         { "<leader>gl",      function() require("snacks").lazygit.log() end,                                    desc = "Lazygit Logs" },
         { "<leader>es",      function() require("snacks").explorer() end,                                       desc = "Open Snacks Explorer" },

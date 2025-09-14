@@ -29,10 +29,31 @@ return {
             -- Id is automatically added at the beginning, and name at the end
             -- See :help oil-columns
             columns = {
-                "icon",
-                "permissions",
-                "size",
-                "mtime",
+                -- "icon", -- Removed icons for cleaner display
+                "type",         -- File type indicator (file/dir/link) - show first for clarity
+                "permissions",  -- File permissions (rwxrwxrwx)
+                "size",         -- File size (with human-readable format)
+                "mtime",        -- Last modified time
+            },
+            -- Column options for more detailed information
+            column_options = {
+                ["type"] = {
+                    -- Show more detailed type information
+                    highlight = "OilTypeDir",
+                },
+                ["size"] = {
+                    -- Display sizes in human readable format (KB, MB, etc.)
+                    highlight = "OilSize",
+                },
+                ["permissions"] = {
+                    -- Show full permission string
+                    highlight = "OilPermissions",
+                },
+                ["mtime"] = {
+                    -- Show date and time in a readable format
+                    format = "%Y-%m-%d %H:%M", -- YYYY-MM-DD HH:MM format
+                    highlight = "OilMtime",
+                },
             },
             -- Buffer-local options to use for oil buffers
             buf_options = {
@@ -112,7 +133,8 @@ return {
                 end,
                 -- This function defines what will never be shown, even when `show_hidden` is set
                 is_always_hidden = function(name, bufnr)
-                    return false
+                    -- Hide some common unimportant files for cleaner display
+                    return name == ".DS_Store" or name == "Thumbs.db" or name == ".git"
                 end,
                 -- Sort file names with numbers in a more intuitive order for humans.
                 -- Can be "fast", true, or false. "fast" will turn it off for large directories.
@@ -120,14 +142,21 @@ return {
                 -- Sort file and directory names case insensitive
                 case_insensitive = false,
                 sort = {
-                    -- sort order can be "asc" or "desc"
-                    -- see :help oil-columns to see which columns are sortable
+                    -- Sort by type first (directories first), then by name
                     { "type", "asc" },
                     { "name", "asc" },
                 },
                 -- Customize the highlight group for the file name
                 highlight_filename = function(entry, is_hidden, is_link_target, is_link_orphan)
-                    return nil
+                    if is_link_orphan then
+                        return "OilLinkOrphan"
+                    elseif is_link_target then
+                        return "OilLinkTarget"
+                    elseif is_hidden then
+                        return "OilHidden"
+                    else
+                        return nil
+                    end
                 end,
             },
             -- Extra arguments to pass to SCP when moving/copying files over SSH
@@ -228,7 +257,7 @@ return {
         })
         vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
     end,
-    -- Optional dependencies
+    -- Dependencies removed since we're not using icons
     -- dependencies = { { "echasnovski/mini.icons", opts = {} } },
-    dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
+    -- dependencies = { "nvim-tree/nvim-web-devicons" },
 }
