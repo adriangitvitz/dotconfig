@@ -19,7 +19,7 @@ background-opacity = 1
 background-blur = false
 background-blur-radius = 20
 # Custom high-contrast theme
-theme = keratoconus-optimized
+theme = cornered
 # theme = dark:flexoki,light:flexoki
 window-padding-balance = true 
 window-save-state = always
