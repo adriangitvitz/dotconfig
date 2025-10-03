@@ -54,16 +54,13 @@ return {
         { "<leader>fg", desc = "Live Grep" },
         { "<leader>fb", desc = "Find Buffers" },
         { "<leader>fr", desc = "Recent Files" },
+        { "<leader>ft", desc = "Find Todo Comments" },
+        { "<leader>fT", desc = "Find Todo/Fix/Fixme" },
 
-        -- File explorer (Oil)
-        { "<leader>e", desc = "Open File Explorer (Oil)" },
-        { "<leader>E", desc = "Open Floating File Explorer (Oil)" },
+        -- File explorer (Netrw)
+        { "<leader>e", desc = "Open File Explorer" },
+        { "<leader>E", desc = "Open File Explorer (Side Panel)" },
         { "-", desc = "Open Parent Directory" },
-
-        -- File tree (Neo-tree)
-        { "<leader>ft", desc = "Toggle NeoTree" },
-        { "<leader>fc", desc = "Close NeoTree" },
-        { "<leader>fs", desc = "Show NeoTree" },
 
         -- LSP operations
         { "<leader>c", group = "Code" },
@@ -75,6 +72,8 @@ return {
         { "<leader>d", group = "Diagnostics" },
         { "[d", desc = "Previous Diagnostic" },
         { "]d", desc = "Next Diagnostic" },
+        { "[t", desc = "Previous Todo Comment" },
+        { "]t", desc = "Next Todo Comment" },
 
         -- LSP navigation
         { "g", group = "Go to" },
@@ -96,7 +95,6 @@ return {
         -- Buffer operations
         { "<leader>b", group = "Buffers" },
         { "<leader>bd", ":bdelete<CR>", desc = "Delete Buffer" },
-        { "<leader>bn", ":bnext<CR>", desc = "Next Buffer" },
         { "<leader>bp", ":bprev<CR>", desc = "Previous Buffer" },
 
         -- Quit/Save operations
@@ -104,6 +102,17 @@ return {
         { "<leader>qq", ":qa<CR>", desc = "Quit All" },
         { "<leader>qw", ":wqa<CR>", desc = "Save and Quit All" },
         { "<leader>qf", ":q!<CR>", desc = "Force Quit" },
+
+        -- Git operations
+        { "<leader>g", group = "Git" },
+        { "<leader>gp", desc = "Preview Git Hunk" },
+        { "<leader>gb", desc = "Git Blame Line" },
+        { "<leader>gr", desc = "Reset Git Hunk" },
+        { "<leader>gR", desc = "Reset Git Buffer" },
+        { "<leader>gs", desc = "Stage Git Hunk" },
+        { "<leader>gu", desc = "Undo Stage Hunk" },
+        { "]h", desc = "Next Git Hunk" },
+        { "[h", desc = "Previous Git Hunk" },
 
         -- Toggle operations
         { "<leader>t", group = "Toggle" },
