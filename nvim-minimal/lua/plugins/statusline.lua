@@ -1,5 +1,6 @@
 return {
     "sschleemilch/slimline.nvim",
+    event = "VeryLazy",
     opts = {
         style = 'fg', -- Use foreground style for better transparency support
         bold = true,
@@ -43,7 +44,7 @@ return {
                     info = 'DiagnosticInfo',     -- Cyan (#89b8c2)
                 },
             },
-            filetype_lsp = {
+            filetype = {
                 hl = {
                     primary = 'Type',       -- Blue (#84a0c6)
                     secondary = 'Comment',  -- Comment (#9da3c4)
@@ -89,8 +90,8 @@ return {
                     "SlimlinePathSecondary", "SlimlinePathSecondarySep",
                     "SlimlineGitPrimary", "SlimlineGitPrimarySep", "SlimlineGitPrimarySep2Sec",
                     "SlimlineGitSecondary", "SlimlineGitSecondarySep",
-                    "SlimlineFiletype_lspPrimary", "SlimlineFiletype_lspPrimarySep", "SlimlineFiletype_lspPrimarySep2Sec",
-                    "SlimlineFiletype_lspSecondary", "SlimlineFiletype_lspSecondarySep",
+                    "SlimlineFiletypePrimary", "SlimlineFiletypePrimarySep", "SlimlineFiletypePrimarySep2Sec",
+                    "SlimlineFiletypeSecondary", "SlimlineFiletypeSecondarySep",
                     "SlimlineProgressPrimary", "SlimlineProgressPrimarySep", "SlimlineProgressPrimarySep2Sec",
                     "SlimlineProgressSecondary", "SlimlineProgressSecondarySep",
                     "SlimlineRecordingPrimary", "SlimlineRecordingPrimarySep", "SlimlineRecordingPrimarySep2Sec",

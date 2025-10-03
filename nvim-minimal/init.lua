@@ -31,6 +31,42 @@ vim.g.mapleader = " "
 -- Load options
 require("options")
 
+-- Netrw (native file explorer) configuration
+vim.g.netrw_banner = 0           -- Disable banner
+vim.g.netrw_liststyle = 1        -- Long list (shows permissions, size, date)
+vim.g.netrw_browse_split = 0     -- Open in same window
+vim.g.netrw_winsize = 25         -- Window size when split
+vim.g.netrw_keepdir = 0          -- Keep current directory synced
+vim.g.netrw_localcopydircmd = 'cp -r'
+vim.g.netrw_sizestyle = "H"      -- Human-readable file sizes (K, M, G)
+
+-- Netrw keybindings
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'netrw',
+  callback = function()
+    local opts = { buffer = true, silent = true }
+    -- Navigation
+    vim.keymap.set('n', 'h', '-', opts)          -- Go up directory
+    vim.keymap.set('n', 'l', '<CR>', opts)       -- Open file/directory
+    vim.keymap.set('n', '.', 'gh', opts)         -- Toggle hidden files
+    vim.keymap.set('n', 'q', ':bd<CR>', opts)    -- Close netrw
+    -- File operations
+    vim.keymap.set('n', 'a', '%', opts)          -- Create new file
+    vim.keymap.set('n', 'r', 'R', opts)          -- Rename file
+    vim.keymap.set('n', 'd', 'D', opts)          -- Delete file
+    vim.keymap.set('n', 'c', 'mc', opts)         -- Copy file
+    vim.keymap.set('n', 'x', 'mx', opts)         -- Move file
+  end,
+})
+
+-- Global keymaps for opening netrw
+vim.keymap.set('n', '-', ':Explore<CR>', { desc = 'Open parent directory', silent = true })
+vim.keymap.set('n', '<leader>e', ':Explore<CR>', { desc = 'Open file explorer', silent = true })
+vim.keymap.set('n', '<leader>E', ':Lexplore<CR>', { desc = 'Open file explorer (side panel)', silent = true })
+
+-- Note: Keratoconus accessibility highlights now handled in colorscheme.lua
+-- This ensures warm colors are used instead of harsh black/white
+
 -- Large file handling
 vim.g.LargeFile = 1024 * 1024 * 10  -- 10MB threshold
 vim.api.nvim_create_augroup("LargeFile", { clear = true })
@@ -90,7 +126,6 @@ require("lazy").setup("plugins", {
         "gzip",
         "matchit",
         "matchparen",
-        "netrwPlugin",
         "tarPlugin",
         "tohtml",
         "tutor",
