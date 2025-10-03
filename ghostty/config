@@ -1,25 +1,36 @@
-font-family = ""
 # font-family = IllinoisMono Nerd Font Mono Plus Material Design Icons
 font-family = Maple Mono Normal
 font-style = "bold"
 
 cursor-style = bar
+# Thicker cursor for better visibility with keratoconus visual distortions
+adjust-cursor-thickness = 3
 
 # Keratoconus optimizations
 # Slightly larger for better readability
 font-size = 20
 # Better character definition
 font-thicken = true
+# Disable ligatures for clearer character separation (reduces ghosting confusion)
+font-feature = -liga
+# Increase line spacing to prevent overlapping text (keratoconus ghosting)
+adjust-cell-height = 4
+# Slight horizontal spacing to reduce character overlap
+adjust-cell-width = 1
 # WCAG AAA compliance
 minimum-contrast = 7.0
- # background-opacity = 0.7
-# Solid background reduces eye strain
+# Solid background reduces eye strain (no transparency)
 background-opacity = 1
 # Disable blur for clarity
 background-blur = false
-background-blur-radius = 20
-# Custom high-contrast theme
-theme = cornered
+# Extra padding to reduce edge crowding (helps with peripheral distortions)
+window-padding-x = 10
+window-padding-y = 10
+# Keratoconus-friendly warm theme (no blue light)
+theme = keratoconus-warm-amber
+# Alternative themes (uncomment to try):
+# theme = keratoconus-soft-orange
+# theme = keratoconus-warm-yellow
 # theme = dark:flexoki,light:flexoki
 window-padding-balance = true 
 window-save-state = always
@@ -68,4 +79,5 @@ copy-on-select = clipboard
 cursor-style-blink = false
 mouse-hide-while-typing = true
 bold-is-bright = false
-unfocused-split-opacity = 0.7
+# Keep unfocused splits solid to prevent additional ghosting artifacts
+unfocused-split-opacity = 1.0

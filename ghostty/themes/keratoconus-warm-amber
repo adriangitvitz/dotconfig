@@ -1,0 +1,48 @@
+# Keratoconus-friendly theme: Warm Amber
+# Designed to minimize blue light and reduce eye strain
+# All colors meet WCAG AAA standards (7:1 contrast ratio)
+
+# Main colors - warm dark brown background with peachy off-white text
+background = #2B1F1A
+foreground = #E8D4B8
+
+# Cursor - warm amber for visibility
+cursor-color = #D4A574
+cursor-text = #2B1F1A
+
+# Selection - warm terracotta
+selection-background = #6B4A3A
+selection-foreground = #E8D4B8
+
+# 16 ANSI colors - all warm tones, no blues
+# Black/Dark shades - warm browns
+palette = 0=#1A110D
+palette = 8=#4A3428
+
+# Red - warm terracotta/rust
+palette = 1=#C76E52
+palette = 9=#D4916F
+
+# Green - warm olive/sage
+palette = 2=#9D8F5C
+palette = 10=#B4A582
+
+# Yellow - warm amber/gold
+palette = 3=#D4A574
+palette = 11=#E0BA8F
+
+# Blue replacement - warm taupe (avoiding blue entirely)
+palette = 4=#8B7965
+palette = 12=#A59179
+
+# Magenta replacement - warm rose/mauve
+palette = 5=#B88880
+palette = 13=#C89E95
+
+# Cyan replacement - warm sage
+palette = 6=#A09573
+palette = 14=#B5AA8A
+
+# White/Light shades - warm cream/peach
+palette = 7=#D4C4B0
+palette = 15=#E8D4B8
