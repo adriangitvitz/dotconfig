@@ -8,10 +8,10 @@ return {
     },
     cmd = "Neotree",
     keys = {
-      { "<leader>ft", "<cmd>Neotree toggle<cr>", desc = "NeoTree Toggle" },
-      { "<leader>fc", "<cmd>Neotree close<cr>", desc = "NeoTree Close" },
-      { "<leader>fs", "<cmd>Neotree show<cr>", desc = "NeoTree Show" },
-      { "<leader>fr", "<cmd>Neotree reveal<cr>", desc = "NeoTree Reveal Current File" },
+      { "<leader>n", "<cmd>Neotree toggle<cr>", desc = "NeoTree Toggle" },
+      { "<leader>N", "<cmd>Neotree reveal<cr>", desc = "NeoTree Reveal" },
+      { "<leader>bn", "<cmd>Neotree buffers toggle<cr>", desc = "NeoTree Buffers" },
+      { "<leader>gn", "<cmd>Neotree git_status toggle<cr>", desc = "NeoTree Git Status" },
     },
     opts = {
       close_if_last_window = false,
@@ -22,6 +22,21 @@ return {
       open_files_do_not_replace_types = { "terminal", "trouble", "qf" },
       sort_case_insensitive = false,
       sort_function = nil,
+
+      -- Source selector for switching between views
+      source_selector = {
+        winbar = true,
+        statusline = false,
+        show_scrolled_off_parent_node = false,
+        sources = {
+          { source = "filesystem" },
+          { source = "buffers" },
+          { source = "git_status" },
+        },
+        content_layout = "center",
+        tabs_layout = "equal",
+        separator = { left = "▏", right= "▕" },
+      },
 
       default_component_configs = {
         container = {
@@ -35,19 +50,20 @@ return {
           last_indent_marker = "└",
           highlight = "NeoTreeIndentMarker",
           with_expanders = nil,
-          expander_collapsed = "▸",
+          expander_collapsed = "›",
           expander_expanded = "▾",
           expander_highlight = "NeoTreeExpander",
         },
         icon = {
-          folder_closed = "[+]",
-          folder_open = "[-]",
-          folder_empty = "[.]",
-          default = "",
+          folder_closed = "▸",
+          folder_open = "▾",
+          folder_empty = "○",
+          folder_empty_open = "●",
+          default = "▪",
           highlight = "NeoTreeFileIcon"
         },
         modified = {
-          symbol = "[M]",
+          symbol = "●",
           highlight = "NeoTreeModified",
         },
         name = {
@@ -57,16 +73,30 @@ return {
         },
         git_status = {
           symbols = {
-            added     = "[A]",
-            modified  = "[M]",
-            deleted   = "[D]",
-            renamed   = "[R]",
-            untracked = "[?]",
-            ignored   = "[I]",
-            unstaged  = "[U]",
-            staged    = "[S]",
-            conflict  = "[C]",
+            added     = "+",
+            modified  = "~",
+            deleted   = "✗",
+            renamed   = "→",
+            untracked = "?",
+            ignored   = "◌",
+            unstaged  = "◌",
+            staged    = "✓",
+            conflict  = "!",
           }
+        },
+        diagnostics = {
+          symbols = {
+            hint = "H",
+            info = "I",
+            warn = "!",
+            error = "✗",
+          },
+          highlights = {
+            hint = "DiagnosticHint",
+            info = "DiagnosticInfo",
+            warn = "DiagnosticWarn",
+            error = "DiagnosticError",
+          },
         },
         file_size = {
           enabled = true,
@@ -93,7 +123,7 @@ return {
 
       window = {
         position = "left",
-        width = 40,
+        width = 35,
         mapping_options = {
           noremap = true,
           nowait = true,
@@ -107,13 +137,16 @@ return {
           ["<cr>"] = "open",
           ["<esc>"] = "cancel",
           ["P"] = { "toggle_preview", config = { use_float = true, use_image_nvim = true } },
-          ["l"] = "focus_preview",
+          ["l"] = "open",
+          ["L"] = "focus_preview",
+          ["h"] = "close_node",
           ["S"] = "open_split",
           ["s"] = "open_vsplit",
           ["t"] = "open_tabnew",
           ["w"] = "open_with_window_picker",
-          ["C"] = "close_node",
+          ["C"] = "close_all_subnodes",
           ["z"] = "close_all_nodes",
+          ["Z"] = "expand_all_nodes",
           ["a"] = {
             "add",
             config = {
@@ -142,19 +175,24 @@ return {
       filesystem = {
         filtered_items = {
           visible = false,
-          hide_dotfiles = true,
-          hide_gitignored = true,
-          hide_hidden = true,
+          hide_dotfiles = false,
+          hide_gitignored = false,
+          hide_hidden = false,
           hide_by_name = {
             ".DS_Store",
-            "thumbs.db"
+            "thumbs.db",
+            ".git",
           },
           hide_by_pattern = {
             "*.meta",
             "*/src/*/tsconfig.json",
           },
           always_show = {
-            ".gitignore"
+            ".gitignore",
+            ".env.example",
+          },
+          always_show_by_pattern = {
+            ".env*",
           },
           never_show = {
             ".DS_Store",
@@ -165,12 +203,12 @@ return {
           },
         },
         follow_current_file = {
-          enabled = false,
+          enabled = true,
           leave_dirs_open = false,
         },
         group_empty_dirs = false,
         hijack_netrw_behavior = "open_default",
-        use_libuv_file_watcher = false,
+        use_libuv_file_watcher = true,
         window = {
           mappings = {
             ["<bs>"] = "navigate_up",
@@ -250,6 +288,28 @@ return {
     },
     config = function(_, opts)
       require("neo-tree").setup(opts)
+
+      -- Custom highlights for better accessibility
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "neo-tree",
+        callback = function()
+          -- High contrast for selected items
+          vim.api.nvim_set_hl(0, "NeoTreeCursorLine", { bg = "#333333", bold = true })
+
+          -- Clear visual distinction for different file states
+          vim.api.nvim_set_hl(0, "NeoTreeModified", { fg = "#ffffff", bold = true })
+          vim.api.nvim_set_hl(0, "NeoTreeGitModified", { fg = "#cccccc", bold = true })
+          vim.api.nvim_set_hl(0, "NeoTreeGitAdded", { fg = "#ffffff", bold = true })
+          vim.api.nvim_set_hl(0, "NeoTreeGitDeleted", { fg = "#888888", strikethrough = true })
+
+          -- Improved indent markers
+          vim.api.nvim_set_hl(0, "NeoTreeIndentMarker", { fg = "#666666" })
+          vim.api.nvim_set_hl(0, "NeoTreeExpander", { fg = "#aaaaaa", bold = true })
+
+          -- Dimmed items for less important files
+          vim.api.nvim_set_hl(0, "NeoTreeDimText", { fg = "#777777" })
+        end,
+      })
     end,
   }
 }

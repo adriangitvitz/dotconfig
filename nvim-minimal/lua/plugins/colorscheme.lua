@@ -1,9 +1,22 @@
 return {
-    "miasma.nvim",
-    dev = true,
-    lazy = false,
-    priority = 1000,
-    config = function()
-      vim.cmd("colorscheme miasma")
-    end
+  "gruvbox.nvim",
+  dev = true,
+  priority = 1000,
+  config = function()
+    require("gruvbox").setup({
+      transparent_mode = true,
+      undercurl = false,
+      underline = false,
+      bold = true,
+      italic = {
+        strings = false,
+        emphasis = false,
+        comments = false,
+        operators = false,
+        folds = false,
+      },
+      contrast = "soft"
+    })
+    vim.cmd([[colorscheme gruvbox]])
+  end,
 }

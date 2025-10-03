@@ -1,0 +1,12 @@
+-- vim.opt.makeprg = "python3 %"
+vim.opt.colorcolumn = ""
+-- vim.opt.errorformat = [[
+--   \%*\\sFile\ "%f"\\,\ line\ %l\\,\ %m,
+--   \%*\\s%[%^\ ]%#:%\\s%#%m,
+--   \%-G%.%#traceback%.%#,
+--   \%-G%.%#%\\s%#lib/python%.%#,
+--   \%-G%.%#%\\s%#site-packages%.%#,
+--   \%C%>.%#,
+--   \%Z%<%.%#,
+--   \%-G%.%#
+-- ]]

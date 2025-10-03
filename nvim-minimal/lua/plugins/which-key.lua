@@ -54,13 +54,15 @@ return {
         { "<leader>fg", desc = "Live Grep" },
         { "<leader>fb", desc = "Find Buffers" },
         { "<leader>fr", desc = "Recent Files" },
-        { "<leader>ft", desc = "Find Todo Comments" },
-        { "<leader>fT", desc = "Find Todo/Fix/Fixme" },
 
-        -- File explorer (Netrw)
+        -- File explorer (Oil)
         { "<leader>e", desc = "Open File Explorer" },
-        { "<leader>E", desc = "Open File Explorer (Side Panel)" },
+        { "<leader>E", desc = "Open Floating File Explorer" },
         { "-", desc = "Open Parent Directory" },
+
+        -- File tree (Neo-tree)
+        { "<leader>n", desc = "Toggle NeoTree" },
+        { "<leader>N", desc = "Reveal File in NeoTree" },
 
         -- LSP operations
         { "<leader>c", group = "Code" },
@@ -72,8 +74,6 @@ return {
         { "<leader>d", group = "Diagnostics" },
         { "[d", desc = "Previous Diagnostic" },
         { "]d", desc = "Next Diagnostic" },
-        { "[t", desc = "Previous Todo Comment" },
-        { "]t", desc = "Next Todo Comment" },
 
         -- LSP navigation
         { "g", group = "Go to" },
@@ -95,6 +95,7 @@ return {
         -- Buffer operations
         { "<leader>b", group = "Buffers" },
         { "<leader>bd", ":bdelete<CR>", desc = "Delete Buffer" },
+        { "<leader>bn", desc = "NeoTree Buffers" },
         { "<leader>bp", ":bprev<CR>", desc = "Previous Buffer" },
 
         -- Quit/Save operations
@@ -105,14 +106,7 @@ return {
 
         -- Git operations
         { "<leader>g", group = "Git" },
-        { "<leader>gp", desc = "Preview Git Hunk" },
-        { "<leader>gb", desc = "Git Blame Line" },
-        { "<leader>gr", desc = "Reset Git Hunk" },
-        { "<leader>gR", desc = "Reset Git Buffer" },
-        { "<leader>gs", desc = "Stage Git Hunk" },
-        { "<leader>gu", desc = "Undo Stage Hunk" },
-        { "]h", desc = "Next Git Hunk" },
-        { "[h", desc = "Previous Git Hunk" },
+        { "<leader>gn", desc = "NeoTree Git Status" },
 
         -- Toggle operations
         { "<leader>t", group = "Toggle" },

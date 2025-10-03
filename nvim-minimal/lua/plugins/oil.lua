@@ -9,10 +9,10 @@ return {
         default_file_explorer = true,
 
         -- Id is automatically added at the beginning, and name at the end
+        -- Simplified columns to avoid cursor detection issues
         columns = {
-          "permissions",  -- File permissions (rwxrwxrwx)
-          "size",        -- File size
-          "mtime",       -- Last modified time
+          "icon",  -- File type icon
+          "size", -- File size only
         },
 
         -- Buffer-local options to use for oil buffers
@@ -29,8 +29,8 @@ return {
           foldcolumn = "0",
           spell = false,
           list = false,
-          conceallevel = 3,
-          concealcursor = "nvic",
+          conceallevel = 2,
+          concealcursor = "nc",
         },
 
         -- Send deleted files to the trash instead of permanently deleting them (:help oil-trash)
@@ -46,6 +46,7 @@ return {
         cleanup_delay_ms = 2000,
 
         -- Constrain the cursor to the editable parts of the oil buffer
+        -- Use "editable" instead of "name" for better cursor detection
         constrain_cursor = "editable",
 
         -- Set to true to watch the filesystem for changes and reload oil
@@ -55,7 +56,46 @@ return {
         -- options with a `callback` (e.g. { callback = function() ... end, desc = "..." })
         keymaps = {
           ["g?"] = "actions.show_help",
-          ["<CR>"] = "actions.select",
+          ["<CR>"] = {
+            callback = function()
+              local oil = require("oil")
+              local entry = oil.get_entry_on_line(0, vim.api.nvim_win_get_cursor(0)[1])
+              if entry then
+                oil.select(nil, function(err)
+                  if err then
+                    print("Oil selection error: " .. err)
+                  end
+                end)
+              else
+                print("No entry found under cursor. Use <leader>d to debug.")
+              end
+            end,
+            desc = "Select entry with error handling"
+          },
+          ["<leader>d"] = {
+            callback = function()
+              local oil = require("oil")
+              local line = vim.api.nvim_get_current_line()
+              local col = vim.api.nvim_win_get_cursor(0)[2]
+              local entry = oil.get_entry_on_line(0, vim.api.nvim_win_get_cursor(0)[1])
+
+              print("Debug - Line: '" .. line .. "', Col: " .. col)
+              print("Debug - Filetype: " .. vim.bo.filetype)
+              if entry then
+                print("Debug - Entry found: " .. entry.name .. " (type: " .. entry.type .. ")")
+              else
+                print("Debug - No entry found under cursor")
+              end
+
+              -- Try to get cursor position relative to entry
+              local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
+              local entries = oil.get_current_dir_entries()
+              if entries and entries[cursor_line] then
+                print("Debug - Entry by line: " .. entries[cursor_line].name)
+              end
+            end,
+            desc = "Debug oil cursor position and entry detection"
+          },
           ["<C-s>"] = "actions.select_vsplit",
           ["<C-h>"] = "actions.select_split",
           ["<C-t>"] = "actions.select_tab",
@@ -70,6 +110,29 @@ return {
           ["gx"] = "actions.open_external",
           ["g."] = "actions.toggle_hidden",
           ["g\\"] = "actions.toggle_trash",
+          ["<leader>o"] = {
+            callback = function()
+              -- Alternative entry selection method
+              local oil = require("oil")
+              local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
+              local line_text = vim.api.nvim_buf_get_lines(0, cursor_line - 1, cursor_line, false)[1]
+
+              if line_text then
+                -- Extract filename from the line (assumes it's at the end)
+                local filename = line_text:match("([^%s]+)%s*$")
+                if filename and filename ~= "" then
+                  local current_dir = oil.get_current_dir()
+                  if current_dir then
+                    local full_path = current_dir .. filename
+                    vim.cmd("edit " .. vim.fn.fnameescape(full_path))
+                  end
+                else
+                  print("Could not extract filename from line: " .. line_text)
+                end
+              end
+            end,
+            desc = "Alternative file open method"
+          },
         },
 
         -- Set to false to disable all of the above keymaps

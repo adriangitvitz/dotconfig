@@ -1,0 +1,7 @@
+return {
+    'echasnovski/mini.hues',
+    version = '*',
+    config = function()
+        require('mini.hues').setup({ background = '#090F19', foreground = '#92a1ba', saturation = 'lowmedium' })
+    end
+}
