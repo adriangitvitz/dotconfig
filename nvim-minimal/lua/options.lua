@@ -16,7 +16,12 @@ if os.getenv("SSH_CONNECTION") or os.getenv("SSH_CLIENT") or os.getenv("SSH_TTY"
     },
   }
 end
-opt.clipboard = "unnamedplus"
+
+if os.getenv("GOOGLE_INTERNAL") or vim.fn.hostname():match("glinux") then
+    opt.clipboard = ""  -- Empty, let tmux handle clipboard via yank plugin
+else
+    opt.clipboard = "unnamedplus"  -- macOS/normal systems
+end
 
 -- Line numbers
 opt.number = true
