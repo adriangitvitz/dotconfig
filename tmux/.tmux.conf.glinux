@@ -1,0 +1,182 @@
+# =============================================================================
+# TMUX CONFIGURATION FOR GLINUX (CHROMEBOOK TERMINAL)
+# =============================================================================
+# Optimized for SSH from Chromebook default terminal to gLinux instances
+# Compatible with Neovim and handles color/clipboard limitations
+
+# Terminal settings - compatible with Chromebook terminal over SSH
+set -g default-terminal "screen-256color"
+# Fallback true color support for various terminal types
+set -ga terminal-overrides ",xterm*:Tc"
+set -ga terminal-overrides ",screen*:Tc"
+set -ga terminal-overrides ",tmux*:Tc"
+# Underline and color support for common terminals
+set -as terminal-overrides ',xterm*:Smulx=\E[4::%p1%dm'
+set -as terminal-overrides ',xterm*:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{255}%&%d::%p1%{255}%&%d%;m'
+
+# Change prefix key from C-b to C-s (more accessible)
+unbind C-b
+set-option -g prefix C-s
+bind-key C-s send-prefix
+
+# Enable mouse support
+set -g mouse on
+
+# Start windows and panes at 1, not 0
+set -g base-index 1
+setw -g pane-base-index 1
+
+# Automatically renumber windows when one is closed
+set -g renumber-windows on
+
+# Increase history limit and optimize performance
+set -g history-limit 50000
+set -sg escape-time 10
+set -g display-time 4000
+set -g status-interval 5
+set -g focus-events on
+
+# Enable vi mode for copy mode
+setw -g mode-keys vi
+
+# Modern keybindings and shortcuts
+bind r source-file ~/.tmux.conf \; display-message "Config reloaded!"
+bind n next-window
+bind h previous-window
+bind Space next-layout
+bind-key -n M-1 select-window -t 1
+bind-key -n M-2 select-window -t 2
+bind-key -n M-3 select-window -t 3
+bind-key -n M-4 select-window -t 4
+bind-key -n M-5 select-window -t 5
+bind-key x kill-pane
+bind-key X kill-window
+bind-key q display-panes
+
+# Better pane splitting with current path
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+unbind '"'
+unbind %
+
+# New window in current path
+bind c new-window -c "#{pane_current_path}"
+
+# Pane resizing
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# Linux clipboard integration (xclip) with fallback
+set -g set-clipboard on
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
+
+# Clipboard support - prioritize xclip, fallback to xsel, then tmux buffer
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -selection clipboard -i 2>/dev/null || xsel --clipboard --input 2>/dev/null || tmux save-buffer -"
+bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel "xclip -selection clipboard -i 2>/dev/null || xsel --clipboard --input 2>/dev/null || tmux save-buffer -"
+bind p paste-buffer
+
+# =============================================================================
+# KERATOCONUS WARM AMBER COLOR SCHEME
+# =============================================================================
+
+# Color palette optimized for keratoconus - WCAG AAA compliant (7.0-8.6:1 contrast)
+# Matches Ghostty keratoconus-warm-amber theme and Neovim iceberg-tokyo warm colors
+# Background: #2B1F1A (warm dark brown) | Foreground: #CCB89D (peachy cream)
+# Highlights: #3D2817 (lighter brown) | Selection: #5A4A32 (warm bronze)
+# Accent: #D4A574 (warm amber) | Secondary: #DAA06D (peachy amber)
+# NO BLUE LIGHT - All blues/purples eliminated for keratoconus comfort
+
+# Status bar configuration
+set -g status-position bottom
+set -g status-style bg='#2B1F1A',fg='#CCB89D'
+set -g status-left-length 20
+set -g status-right-length 80
+
+# Status bar left side (session info with powerline separators) - Warm amber theme
+set -g status-left '#[bg=#D4A574,fg=#2B1F1A,bold] #S #[bg=#2B1F1A,fg=#D4A574]'
+
+# Status bar right side (enhanced with system info and powerline separators) - Warm amber theme
+set -g status-right '#[fg=#3D2817]#[bg=#3D2817,fg=#CDBCA7] #{?client_prefix,#[bg=#DAA06D]#[fg=#2B1F1A] PREFIX ,}#[bg=#3D2817,fg=#CDBCA7]#[fg=#D4A574]#[bg=#D4A574,fg=#2B1F1A] %H:%M #[fg=#DAA06D]#[bg=#DAA06D,fg=#2B1F1A] %a %d/%m '
+
+# Window status format - Warm amber theme (WCAG AAA validated)
+setw -g window-status-current-format '#[bg=#D4A574,fg=#2B1F1A,bold] #I:#W#F #[bg=#2B1F1A,fg=#D4A574]'
+setw -g window-status-format '#[bg=#3D2817,fg=#CDBCA7] #I:#W#F #[bg=#2B1F1A,fg=#3D2817]'
+
+# Window status separator
+setw -g window-status-separator ''
+
+# Pane border colors - Warm theme with amber active border
+set -g pane-border-style fg='#3D2817'
+set -g pane-active-border-style fg='#D4A574'
+
+# Message styling - Warm amber theme
+set -g message-style bg='#D4A574',fg='#2B1F1A'
+set -g message-command-style bg='#DAA06D',fg='#2B1F1A'
+
+# Copy mode styling - Warm bronze selection
+setw -g mode-style bg='#5A4A32',fg='#CCB89D'
+
+# Clock mode color - Warm amber
+setw -g clock-mode-colour '#D4A574'
+
+# =============================================================================
+# VIM-TMUX NAVIGATOR INTEGRATION
+# =============================================================================
+
+# Smart pane switching with awareness of Vim splits
+is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
+    | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|n?vim?x?)(diff)?$'"
+bind-key -n 'C-h' if-shell "$is_vim" 'send-keys C-h'  'select-pane -L'
+bind-key -n 'C-j' if-shell "$is_vim" 'send-keys C-j'  'select-pane -D'
+bind-key -n 'C-k' if-shell "$is_vim" 'send-keys C-k'  'select-pane -U'
+bind-key -n 'C-l' if-shell "$is_vim" 'send-keys C-l'  'select-pane -R'
+
+tmux_version='$(tmux -V | sed -En "s/^tmux ([0-9]+(.[0-9]+)?).*/\1/p")'
+if-shell -b '[ "$(echo "$tmux_version < 3.0" | bc)" = 1 ]' \
+    "bind-key -n 'C-\\' if-shell \"$is_vim\" 'send-keys C-\\'  'select-pane -l'"
+if-shell -b '[ "$(echo "$tmux_version >= 3.0" | bc)" = 1 ]' \
+    "bind-key -n 'C-\\' if-shell \"$is_vim\" 'send-keys C-\\\\'  'select-pane -l'"
+
+bind-key -T copy-mode-vi 'C-h' select-pane -L
+bind-key -T copy-mode-vi 'C-j' select-pane -D
+bind-key -T copy-mode-vi 'C-k' select-pane -U
+bind-key -T copy-mode-vi 'C-l' select-pane -R
+bind-key -T copy-mode-vi 'C-\' select-pane -l
+
+# =============================================================================
+# PLUGIN CONFIGURATION
+# =============================================================================
+
+# Plugin manager
+set -g @plugin 'tmux-plugins/tpm'
+
+# Essential productivity plugins
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @plugin 'tmux-plugins/tmux-yank'
+set -g @plugin 'christoomey/vim-tmux-navigator'
+
+# Additional useful plugins
+set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
+set -g @plugin 'tmux-plugins/tmux-copycat'
+set -g @plugin 'sainnhe/tmux-fzf'
+
+# Plugin configurations
+set -g @continuum-restore 'on'
+set -g @continuum-save-interval '15'
+
+# Prefix highlight configuration - Warm amber theme (no blue light)
+set -g @prefix_highlight_bg '#D4A574'
+set -g @prefix_highlight_fg '#2B1F1A'
+set -g @prefix_highlight_copy_mode_attr 'fg=#2B1F1A,bg=#DAA06D'
+
+# tmux-fzf configuration with Serendipity colors
+set -g @tmux-fzf-launch-key 'C-f'
+TMUX_FZF_OPTIONS="-p -w 62% -h 38% -m"
+TMUX_FZF_PREVIEW=0
+
+# Initialize TMUX plugin manager (keep this line at the very bottom)
+run '~/.tmux/plugins/tpm/tpm'

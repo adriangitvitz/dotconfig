@@ -1,7 +1,21 @@
 -- General options
 local opt = vim.opt
 
--- Clipboard - enable system clipboard integration for macOS
+-- Clipboard configuration - OSC 52 for SSH, native for local
+-- Use OSC 52 for clipboard over SSH (works through terminal to local machine)
+if os.getenv("SSH_CONNECTION") or os.getenv("SSH_CLIENT") or os.getenv("SSH_TTY") then
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+    },
+    paste = {
+      ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+    },
+  }
+end
 opt.clipboard = "unnamedplus"
 
 -- Line numbers
