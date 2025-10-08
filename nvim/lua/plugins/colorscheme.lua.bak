@@ -1,0 +1,7 @@
+return {
+  "iceberg-tokyo.nvim",
+  dev = true,
+  config = function()
+    vim.cmd.colorscheme("iceberg-tokyo")
+  end
+}

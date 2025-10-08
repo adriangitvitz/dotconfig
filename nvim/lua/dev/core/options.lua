@@ -57,8 +57,12 @@ opt.virtualedit = "block" -- Better visual block mode
 opt.winminwidth = 5 -- Minimum window width
 opt.confirm = true -- Confirm to save changes before exiting modified buffer
 
--- macOS + Ghostty clipboard integration
-if vim.fn.has("macunix") == 1 then
+-- Clipboard configuration - environment aware
+-- gLinux: empty (rely on tmux-yank plugin to avoid netrw lag)
+-- macOS: use system clipboard
+if os.getenv("GOOGLE_INTERNAL") or vim.fn.hostname():match("glinux") then
+    opt.clipboard = ""  -- Let tmux handle clipboard
+elseif vim.fn.has("macunix") == 1 then
     opt.clipboard = "unnamed,unnamedplus"
 else
     opt.clipboard:append("unnamedplus")

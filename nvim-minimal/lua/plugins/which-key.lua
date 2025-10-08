@@ -48,12 +48,13 @@ return {
 
       -- Define key groups and mappings
       wk.add({
-        -- File operations
+        -- Find operations
         { "<leader>f", group = "Find" },
         { "<leader>ff", desc = "Find Files" },
         { "<leader>fg", desc = "Live Grep" },
         { "<leader>fb", desc = "Find Buffers" },
         { "<leader>fr", desc = "Recent Files" },
+        { "<leader>fk", desc = "Search Bookmarks" },
         { "<leader>ft", desc = "Find Todo Comments" },
         { "<leader>fT", desc = "Find Todo/Fix/Fixme" },
 
@@ -65,8 +66,8 @@ return {
         -- LSP operations
         { "<leader>c", group = "Code" },
         { "<leader>ca", desc = "Code Action" },
-        { "<leader>cr", desc = "Rename Symbol" },
-        { "<leader>cf", desc = "Format Code" },
+        { "<leader>rn", desc = "Rename Symbol" },
+        { "<leader>f", desc = "Format Code" },
 
         -- Diagnostics
         { "<leader>d", group = "Diagnostics" },
@@ -96,6 +97,25 @@ return {
         { "<leader>b", group = "Buffers" },
         { "<leader>bd", ":bdelete<CR>", desc = "Delete Buffer" },
         { "<leader>bp", ":bprev<CR>", desc = "Previous Buffer" },
+
+        -- Bookmark operations
+        { "<leader>m", group = "Bookmarks" },
+        { "<leader>mm", desc = "Toggle Bookmark" },
+        { "<leader>mi", desc = "Add/Edit Bookmark Annotation" },
+        { "<leader>ma", desc = "Show All Bookmarks" },
+        { "<leader>mn", desc = "Next Bookmark" },
+        { "<leader>mp", desc = "Previous Bookmark" },
+        { "<leader>mc", desc = "Clean Invalid Bookmarks" },
+        { "<leader>mx", desc = "Clear All Bookmarks" },
+        { "<leader>hd", desc = "Add Bookmark with Annotation" },
+        { "<leader>hm", desc = "Show Bookmark List" },
+        { "mm", desc = "Toggle Bookmark" },
+        { "mi", desc = "Add/Edit Bookmark Annotation" },
+        { "ma", desc = "Show All Bookmarks" },
+        { "mn", desc = "Next Bookmark" },
+        { "mp", desc = "Previous Bookmark" },
+        { "mc", desc = "Clean Invalid Bookmarks" },
+        { "mx", desc = "Clear All Bookmarks" },
 
         -- Quit/Save operations
         { "<leader>q", group = "Quit/Save" },

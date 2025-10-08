@@ -31,7 +31,7 @@ return {
                 desc = "Harpoon to File " .. i,
             })
         end
-        
+
         -- Leader-based fallbacks
         for i = 1, 4 do
             table.insert(keys, {
@@ -66,3 +66,4 @@ return {
         require("harpoon"):setup(opts)
     end,
 }
+

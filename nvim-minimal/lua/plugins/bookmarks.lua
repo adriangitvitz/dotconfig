@@ -48,7 +48,7 @@ return {
         -- Integration with telescope if available
         pcall(function()
             require('telescope').load_extension('bookmarks')
-            vim.keymap.set('n', '<leader>fb', '<cmd>Telescope bookmarks list<cr>',
+            vim.keymap.set('n', '<leader>fk', '<cmd>Telescope bookmarks list<cr>',
                 { desc = 'Search bookmarks' })
         end)
     end,
